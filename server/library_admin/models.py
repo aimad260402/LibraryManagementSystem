@@ -20,4 +20,13 @@ class LibraryUser(models.Model):
 
     def __str__(self):
         return f"Patron: {self.user.username} ({self.member_id})"
+class Loan(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    patron = models.ForeignKey(LibraryUser, on_delete=models.CASCADE)
+    loan_date = models.DateField(auto_now_add=True)
+    due_date = models.DateField()
+    returned_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Loan of {self.book.title} to {self.patron.user.username}"
     
