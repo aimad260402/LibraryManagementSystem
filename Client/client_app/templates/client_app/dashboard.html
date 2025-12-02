@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Librarian Dashboard (Test)</title>
+    <style>
+        .available { color: green; }
+        .unavailable { color: red; }
+    </style>
 </head>
 <body>
     <h1>Librarian Dashboard</h1>
@@ -18,10 +22,6 @@
         <input type="text" name="q" placeholder="Search Title or Author..." value="{{ query|default:'' }}">
         <button type="submit">RUN SEARCH RPC</button>
     </form>
-    
-    {% if book_results %}
-        <h3>Found {{ book_results|length }} Books:</h3>
-        <table>
             <thead>
                 <tr><th>Title</th><th>Author</th><th>Available?</th></tr>
             </thead>
@@ -30,8 +30,12 @@
                 <tr>
                     <td>{{ book.title }}</td>
                     <td>{{ book.author }}</td>
-                    <td style="color: {% if book.is_available %}green{% else %}red{% endif %};">
+                    <td class="{% if book.is_available %}available{% else %}unavailable{% endif %}">
                         {{ book.is_available|yesno:"YES,NO" }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
                     </td>
                 </tr>
                 {% endfor %}
