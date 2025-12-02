@@ -1,0 +1,82 @@
+/* In Client/client_app/static/css/dashboard.css */
+
+/* --- Inheritance and Overrides --- */
+
+/* Overrides the default width set in login.css for better table viewing */
+.dashboard-container {
+    width: 95%;
+    max-width: 1000px;
+    margin: 20px auto;
+}
+
+/* --- Navigation & Headers --- */
+
+.header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 25px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    padding: 10px 0;
+}
+
+.action-button-primary {
+    padding: 10px 20px;
+    background-color: #28a745; /* Green for Add/Create action */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: background-color 0.2s;
+}
+
+.action-button-primary:hover {
+    background-color: #1e7e34;
+}
+
+/* --- Search Area Styles --- */
+
+.search-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    align-items: center;
+}
+
+.search-area input[type="text"] {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+}
+
+/* --- Table Styles --- */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    text-align: left;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background-color: white;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+thead th {
+    background-color: #e9ecef;
+    font-weight: 700;
+    color: var(--text-dark, #343a40);
+}
+
+/* Status Colors */
+.available { color: green; font-weight: 600; }
+.unavailable { color: var(--secondary-color, #6c757d); font-weight: 600; }

@@ -40,7 +40,7 @@ def staff_logout(request: HttpRequest):
     return redirect('staff_login')
 
 
-# --- Dashboard / Search View ---
+# --- Core Management Views ---
 
 def dashboard(request: HttpRequest):
     """The main librarian interface, featuring book search."""
@@ -66,3 +66,41 @@ def dashboard(request: HttpRequest):
     }
     
     return render(request, 'client_app/dashboard.html', context)
+
+
+# 🚨 FIX: ADDED MISSING VIEW FUNCTION 🚨
+def add_book(request: HttpRequest):
+    """Handles the form for creating a new book and calling the CreateBook RPC."""
+    staff_id = request.session.get('staff_id')
+    
+    # Enforce authentication 
+    if not staff_id:
+        request.session['login_message'] = "Authentication required."
+        return redirect('staff_login')
+
+    context = {
+        'username': request.session.get('username'),
+        'title': "Add New Book"
+    }
+    
+    if request.method == 'POST':
+        # Retrieve form data
+        title = request.POST.get('title')
+        author = request.POST.get('author')
+        isbn = request.POST.get('isbn')
+        # Checkbox handling
+        is_available = request.POST.get('is_available') == 'on' 
+
+        client = LibraryClient()
+        
+        # Call the remote gRPC RPC
+        response = client.create_book(title, author, isbn, is_available)
+        
+        # Prepare context based on gRPC response
+        context['success'] = response.success
+        context['message'] = response.message
+        
+        if response.success:
+            context['message'] += f" (New ID: {response.entity_id})"
+        
+    return render(request, 'client_app/add_book.html', context)

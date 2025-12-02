@@ -1,54 +1,74 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Librarian Dashboard (Test)</title>
-    <style>
-        .available { color: green; }
-        .unavailable { color: red; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Librarian Dashboard | Inventory</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 </head>
 <body>
-    <h1>Librarian Dashboard</h1>
-    
-    <p>Welcome, **{{ username }}**. Your Staff ID is: **{{ staff_id }}**</p>
-    <p><a href="{% url 'staff_logout' %}">LOGOUT</a></p>
-
-    <hr>
-    
-    <h2>✅ gRPC Connectivity Test: Book Search</h2>
-    
-    <form method="get" action="{% url 'dashboard' %}">
-        <input type="text" name="q" placeholder="Search Title or Author..." value="{{ query|default:'' }}">
-        <button type="submit">RUN SEARCH RPC</button>
-    </form>
-    
-    <hr>
-    
-    {% if book_results %}
-        <h3>Found {{ book_results|length }} Books:</h3>
+    <div class="login-container dashboard-container">
         
-        <table>
-            <thead>
-                <tr><th>Title</th><th>Author</th><th>Available?</th></tr>
-            </thead>
-            <tbody>
-                {% for book in book_results %}
-                <tr>
-                    <td>{{ book.title }}</td>
-                    <td>{{ book.author }}</td>
-                    <td class="{% if book.is_available %}available{% else %}unavailable{% endif %}">
-                        {{ book.is_available|yesno:"YES,NO" }}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="header-controls">
+            <div class="header" style="text-align: left;">
+                <h1>📚 Librarian Dashboard</h1>
+                <p>Inventory Management and Loan Processing</p>
+            </div>
+            
+            <div style="text-align: right;">
+                <p>Welcome, **{{ username }}**</p>
+                <a href="{% url 'staff_logout' %}" style="color: #dc3545;">Logout</a>
+            </div>
+        </div>
+
+        <hr>
+        
+        <div class="action-buttons">
+            <a href="{% url 'add_book' %}" class="action-button-primary">
+                + Add New Book
+            </a>
+            </div>
+
+        <h2>Search Inventory</h2>
+        
+        <form method="get" action="{% url 'dashboard' %}" class="search-area">
+            <input type="text" name="q" 
+                   placeholder="Search Title, Author, or ISBN..." 
+                   value="{{ query|default:'' }}">
+            <button type="submit" class="login-btn" style="width: 150px;">Search</button>
+        </form>
+        
+        {% if book_results %}
+            <h3>Found {{ book_results|length }} Books:</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>ISBN</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in book_results %}
+                    <tr>
+                        <td>{{ book.title }}</td>
+                        <td>{{ book.author }}</td>
+                        <td>{{ book.isbn }}</td>
+                        <td class="{% if book.is_available %}available{% else %}unavailable{% endif %}">
+                            {{ book.is_available|yesno:"Available, Loaned" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         {% else %}
-        <p>No results found, or the gRPC server is offline.</p>
-        {% if query %}
-            <p>Attempted search query: "{{ query }}"</p>
+            <p style="text-align: center;">No results found for query "{{ query }}".</p>
         {% endif %}
-    {% endif %}
+
+    </div>
 </body>
 </html>
