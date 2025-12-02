@@ -17,17 +17,22 @@
                 <p>Inventory Management and Loan Processing</p>
             </div>
             
-            <div style="text-align: right;">
-                <p>Welcome, **{{ username }}**</p>
-                <a href="{% url 'staff_logout' %}" style="color: #dc3545;">Logout</a>
+            <div class="user-controls">
+                <a href="{% url 'staff_profile' %}" class="nav-button profile-btn">
+                    <i aria-hidden="true">⚙️</i> Profile
+                </a>
+                
+                <a href="{% url 'staff_logout' %}" class="nav-button logout-btn">
+                    <i aria-hidden="true">🚪</i> Log Out
+                </a>
             </div>
-        </div>
+            </div>
 
         <hr>
         
         <div class="action-buttons">
             <a href="{% url 'add_book' %}" class="action-button-primary">
-                + Add New Book
+                <i aria-hidden="true">➕</i> Add New Book
             </a>
             </div>
 
@@ -37,7 +42,7 @@
             <input type="text" name="q" 
                    placeholder="Search Title, Author, or ISBN..." 
                    value="{{ query|default:'' }}">
-            <button type="submit" class="login-btn" style="width: 150px;">Search</button>
+            <button type="submit" class="login-btn" style="width: 150px;">🔍 Search</button>
         </form>
         
         {% if book_results %}
@@ -59,7 +64,7 @@
                         <td>{{ book.author }}</td>
                         <td>{{ book.isbn }}</td>
                         <td class="{% if book.is_available %}available{% else %}unavailable{% endif %}">
-                            {{ book.is_available|yesno:"Available, Loaned" }}
+                            {{ book.is_available|yesno:"✅ Available, 🚫 Loaned" }}
                         </td>
                     </tr>
                     {% endfor %}
