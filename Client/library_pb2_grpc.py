@@ -26,7 +26,9 @@ if _version_not_supported:
 
 
 class LibraryServiceStub(object):
-    """--- Service Definition: LibraryService (The API) ---
+    """----------------------------------------------------
+    SERVICE DEFINITION: LibraryService (The RPC API)
+    ----------------------------------------------------
 
     """
 
@@ -53,7 +55,7 @@ class LibraryServiceStub(object):
                 _registered_method=True)
         self.GetBook = channel.unary_unary(
                 '/library_system.LibraryService/GetBook',
-                request_serializer=library__pb2.Book.SerializeToString,
+                request_serializer=library__pb2.SearchRequest.SerializeToString,
                 response_deserializer=library__pb2.Book.FromString,
                 _registered_method=True)
         self.UpdateBookAvailability = channel.unary_unary(
@@ -63,30 +65,37 @@ class LibraryServiceStub(object):
                 _registered_method=True)
         self.BorrowBook = channel.unary_unary(
                 '/library_system.LibraryService/BorrowBook',
-                request_serializer=library__pb2.StatusResponse.SerializeToString,
+                request_serializer=library__pb2.BorrowRequest.SerializeToString,
                 response_deserializer=library__pb2.StatusResponse.FromString,
                 _registered_method=True)
         self.ReturnBook = channel.unary_unary(
                 '/library_system.LibraryService/ReturnBook',
-                request_serializer=library__pb2.StatusResponse.SerializeToString,
+                request_serializer=library__pb2.BorrowRequest.SerializeToString,
+                response_deserializer=library__pb2.StatusResponse.FromString,
+                _registered_method=True)
+        self.UpdateStaffProfile = channel.unary_unary(
+                '/library_system.LibraryService/UpdateStaffProfile',
+                request_serializer=library__pb2.UpdateProfileRequest.SerializeToString,
                 response_deserializer=library__pb2.StatusResponse.FromString,
                 _registered_method=True)
 
 
 class LibraryServiceServicer(object):
-    """--- Service Definition: LibraryService (The API) ---
+    """----------------------------------------------------
+    SERVICE DEFINITION: LibraryService (The RPC API)
+    ----------------------------------------------------
 
     """
 
     def UserLogin(self, request, context):
-        """1. Authentication
+        """Authentication
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def CreateBook(self, request, context):
-        """2. Inventory Management (CRUD for Books)
+        """Inventory Management (Implemented: CreateBook, SearchBooks)
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -111,8 +120,7 @@ class LibraryServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def BorrowBook(self, request, context):
-        """3. Loan Management (Core Librarian Tasks)
-        We'll define more precise loan messages later, but use simple types for now:
+        """Loan Management (Next steps)
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -120,6 +128,13 @@ class LibraryServiceServicer(object):
 
     def ReturnBook(self, request, context):
         """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UpdateStaffProfile(self, request, context):
+        """Staff Management (Implemented for Profile Update)
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -144,7 +159,7 @@ def add_LibraryServiceServicer_to_server(servicer, server):
             ),
             'GetBook': grpc.unary_unary_rpc_method_handler(
                     servicer.GetBook,
-                    request_deserializer=library__pb2.Book.FromString,
+                    request_deserializer=library__pb2.SearchRequest.FromString,
                     response_serializer=library__pb2.Book.SerializeToString,
             ),
             'UpdateBookAvailability': grpc.unary_unary_rpc_method_handler(
@@ -154,12 +169,17 @@ def add_LibraryServiceServicer_to_server(servicer, server):
             ),
             'BorrowBook': grpc.unary_unary_rpc_method_handler(
                     servicer.BorrowBook,
-                    request_deserializer=library__pb2.StatusResponse.FromString,
+                    request_deserializer=library__pb2.BorrowRequest.FromString,
                     response_serializer=library__pb2.StatusResponse.SerializeToString,
             ),
             'ReturnBook': grpc.unary_unary_rpc_method_handler(
                     servicer.ReturnBook,
-                    request_deserializer=library__pb2.StatusResponse.FromString,
+                    request_deserializer=library__pb2.BorrowRequest.FromString,
+                    response_serializer=library__pb2.StatusResponse.SerializeToString,
+            ),
+            'UpdateStaffProfile': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateStaffProfile,
+                    request_deserializer=library__pb2.UpdateProfileRequest.FromString,
                     response_serializer=library__pb2.StatusResponse.SerializeToString,
             ),
     }
@@ -171,7 +191,9 @@ def add_LibraryServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class LibraryService(object):
-    """--- Service Definition: LibraryService (The API) ---
+    """----------------------------------------------------
+    SERVICE DEFINITION: LibraryService (The RPC API)
+    ----------------------------------------------------
 
     """
 
@@ -271,7 +293,7 @@ class LibraryService(object):
             request,
             target,
             '/library_system.LibraryService/GetBook',
-            library__pb2.Book.SerializeToString,
+            library__pb2.SearchRequest.SerializeToString,
             library__pb2.Book.FromString,
             options,
             channel_credentials,
@@ -325,7 +347,7 @@ class LibraryService(object):
             request,
             target,
             '/library_system.LibraryService/BorrowBook',
-            library__pb2.StatusResponse.SerializeToString,
+            library__pb2.BorrowRequest.SerializeToString,
             library__pb2.StatusResponse.FromString,
             options,
             channel_credentials,
@@ -352,7 +374,34 @@ class LibraryService(object):
             request,
             target,
             '/library_system.LibraryService/ReturnBook',
-            library__pb2.StatusResponse.SerializeToString,
+            library__pb2.BorrowRequest.SerializeToString,
+            library__pb2.StatusResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateStaffProfile(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/library_system.LibraryService/UpdateStaffProfile',
+            library__pb2.UpdateProfileRequest.SerializeToString,
             library__pb2.StatusResponse.FromString,
             options,
             channel_credentials,

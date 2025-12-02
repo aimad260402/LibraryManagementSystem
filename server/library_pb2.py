@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rlibrary.proto\x12\x0elibrary_system\"2\n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"B\n\rLoginResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"U\n\x04\x42ook\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x03 \x01(\t\x12\x0c\n\x04isbn\x18\x04 \x01(\t\x12\x14\n\x0cis_available\x18\x05 \x01(\x08\"\x1e\n\rSearchRequest\x12\r\n\x05query\x18\x01 \x01(\t\"E\n\x0eStatusResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\tentity_id\x18\x03 \x01(\x05\x32\x95\x04\n\x0eLibraryService\x12J\n\tUserLogin\x12\x1c.library_system.LoginRequest\x1a\x1d.library_system.LoginResponse\"\x00\x12\x44\n\nCreateBook\x12\x14.library_system.Book\x1a\x1e.library_system.StatusResponse\"\x00\x12\x46\n\x0bSearchBooks\x12\x1d.library_system.SearchRequest\x1a\x14.library_system.Book\"\x00\x30\x01\x12\x37\n\x07GetBook\x12\x14.library_system.Book\x1a\x14.library_system.Book\"\x00\x12P\n\x16UpdateBookAvailability\x12\x14.library_system.Book\x1a\x1e.library_system.StatusResponse\"\x00\x12N\n\nBorrowBook\x12\x1e.library_system.StatusResponse\x1a\x1e.library_system.StatusResponse\"\x00\x12N\n\nReturnBook\x12\x1e.library_system.StatusResponse\x1a\x1e.library_system.StatusResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rlibrary.proto\x12\x0elibrary_system\"2\n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"B\n\rLoginResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"U\n\x04\x42ook\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x03 \x01(\t\x12\x0c\n\x04isbn\x18\x04 \x01(\t\x12\x14\n\x0cis_available\x18\x05 \x01(\x08\"\x1e\n\rSearchRequest\x12\r\n\x05query\x18\x01 \x01(\t\"E\n\x0eStatusResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\tentity_id\x18\x03 \x01(\x05\"3\n\rBorrowRequest\x12\x11\n\tmember_id\x18\x01 \x01(\t\x12\x0f\n\x07\x62ook_id\x18\x02 \x01(\x05\"\x81\x01\n\x14UpdateProfileRequest\x12\x10\n\x08staff_id\x18\x01 \x01(\t\x12\x14\n\x0cnew_username\x18\x02 \x01(\t\x12\x11\n\tnew_email\x18\x03 \x01(\t\x12\x18\n\x10\x63urrent_password\x18\x04 \x01(\t\x12\x14\n\x0cnew_password\x18\x05 \x01(\t2\xfa\x04\n\x0eLibraryService\x12J\n\tUserLogin\x12\x1c.library_system.LoginRequest\x1a\x1d.library_system.LoginResponse\"\x00\x12\x44\n\nCreateBook\x12\x14.library_system.Book\x1a\x1e.library_system.StatusResponse\"\x00\x12\x46\n\x0bSearchBooks\x12\x1d.library_system.SearchRequest\x1a\x14.library_system.Book\"\x00\x30\x01\x12@\n\x07GetBook\x12\x1d.library_system.SearchRequest\x1a\x14.library_system.Book\"\x00\x12P\n\x16UpdateBookAvailability\x12\x14.library_system.Book\x1a\x1e.library_system.StatusResponse\"\x00\x12M\n\nBorrowBook\x12\x1d.library_system.BorrowRequest\x1a\x1e.library_system.StatusResponse\"\x00\x12M\n\nReturnBook\x12\x1d.library_system.BorrowRequest\x1a\x1e.library_system.StatusResponse\"\x00\x12\\\n\x12UpdateStaffProfile\x12$.library_system.UpdateProfileRequest\x1a\x1e.library_system.StatusResponse\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -41,6 +41,10 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_SEARCHREQUEST']._serialized_end=270
   _globals['_STATUSRESPONSE']._serialized_start=272
   _globals['_STATUSRESPONSE']._serialized_end=341
-  _globals['_LIBRARYSERVICE']._serialized_start=344
-  _globals['_LIBRARYSERVICE']._serialized_end=877
+  _globals['_BORROWREQUEST']._serialized_start=343
+  _globals['_BORROWREQUEST']._serialized_end=394
+  _globals['_UPDATEPROFILEREQUEST']._serialized_start=397
+  _globals['_UPDATEPROFILEREQUEST']._serialized_end=526
+  _globals['_LIBRARYSERVICE']._serialized_start=529
+  _globals['_LIBRARYSERVICE']._serialized_end=1163
 # @@protoc_insertion_point(module_scope)
