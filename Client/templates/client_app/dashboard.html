@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Librarian Dashboard (Test)</title>
+</head>
+<body>
+    <h1>Librarian Dashboard</h1>
+    
+    <p>Welcome, **{{ username }}**. Your Staff ID is: **{{ staff_id }}**</p>
+    <p><a href="{% url 'staff_logout' %}">LOGOUT</a></p>
+
+    <hr>
+    
+    <h2>✅ gRPC Connectivity Test: Book Search</h2>
+    
+    <form method="get" action="{% url 'dashboard' %}">
+        <input type="text" name="q" placeholder="Search Title or Author..." value="{{ query|default:'' }}">
+        <button type="submit">RUN SEARCH RPC</button>
+    </form>
+    
+    {% if book_results %}
+        <h3>Found {{ book_results|length }} Books:</h3>
+        <table>
+            <thead>
+                <tr><th>Title</th><th>Author</th><th>Available?</th></tr>
+            </thead>
+            <tbody>
+                {% for book in book_results %}
+                <tr>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td style="color: {% if book.is_available %}green{% else %}red{% endif %};">
+                        {{ book.is_available|yesno:"YES,NO" }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No results found, or the gRPC server is offline.</p>
+        {% if query %}
+            <p>Attempted search query: "{{ query }}"</p>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
