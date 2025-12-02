@@ -104,3 +104,25 @@ def add_book(request: HttpRequest):
             context['message'] += f" (New ID: {response.entity_id})"
         
     return render(request, 'client_app/add_book.html', context)
+def staff_profile(request: HttpRequest):
+    """
+    Handles the staff profile interface where the librarian can update information.
+    For now, this is a placeholder using session data.
+    """
+    staff_id = request.session.get('staff_id')
+    
+    if not staff_id:
+        request.session['login_message'] = "Authentication required."
+        return redirect('staff_login')
+    
+    context = {
+        'username': request.session.get('username'),
+        'staff_id': staff_id,
+        'title': "Librarian Profile"
+    }
+    
+    # In a later step, you would call gRPC to get or update profile details here:
+    # client = LibraryClient()
+    # profile_details = client.get_staff_details(staff_id)
+    
+    return render(request, 'client_app/staff_profile.html', context)
