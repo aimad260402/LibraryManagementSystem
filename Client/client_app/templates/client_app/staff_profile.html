@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <style>
+        /* Minimal style adjustments specific to the profile page, usually belongs in dashboard.css */
+        .message-container {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .security-check {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        /* Style for the input fields to match the look */
+        .profile-form input[type="text"],
+        .profile-form input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Ensures padding doesn't affect total width */
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container dashboard-container">
+        
+        <div class="header-controls" style="justify-content: space-between;">
+            <div class="header" style="text-align: left;">
+                <h1>✅👤 Edit Profile</h1>
+                <p>Staff ID: **{{ staff_id }}**</p>
+            </div>
+            <a href="{% url 'dashboard' %}" class="nav-button profile-btn">
+                <i aria-hidden="true">🏠</i> Dashboard
+            </a>
+        </div>
+
+        <hr>
+
+        {% if error_message %}
+            <div class="message-container error-message">
+                **RPC Error:** {{ error_message }}
+            </div>
+        {% elif success_message %}
+            <div class="message-container success-message">
+                {{ success_message }}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'staff_profile' %}" class="profile-form">
+            {% csrf_token %}
+
+            <h2>CONNECTION DETAILS</h2>
+            
+            <label for="id_new_username">Username</label>
+            <input type="text" id="id_new_username" name="new_username" value="{{ username }}" required>
+
+            <label for="id_new_email">Email Address</label>
+            <input type="text" id="id_new_email" name="new_email" value="{{ email }}" placeholder="Update your email address">
+            
+
+            <h2>SECURITY SETTINGS</h2>
+            
+            <label for="id_new_password">New Password (Optional)</label>
+            <input type="password" id="id_new_password" name="new_password" placeholder="Leave empty to keep current password">
+            
+            <div class="security-check">
+                **Security Check:** You must enter your current password to save any changes.
+            </div>
+
+            <label for="id_current_password">Current Password *</label>
+            <input type="password" id="id_current_password" name="current_password" required>
+
+            <button type="submit" class="login-btn" style="width: 100%; margin-top: 20px;">Save Changes</button>
+        </form>
+
+    </div>
+</body>
+</html>

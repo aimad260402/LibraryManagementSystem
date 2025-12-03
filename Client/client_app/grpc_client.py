@@ -8,26 +8,17 @@ import os
 # 1. PYTHON PATH FIX (CRITICAL for Django Client)
 # ----------------------------------------------------
 
-# Get the directory where THIS SCRIPT (grpc_client.py) is located (e.g., .../client_app)
 current_app_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Move up one directory to the package root (C:\...\LibraryManagementSystem\Client)
-# This is where the generated library_pb2.py file lives.
 project_root_client = os.path.abspath(os.path.join(current_app_dir, '..'))
-
-# Add the client root directory to the search path
 sys.path.insert(0, project_root_client)
 
 # ----------------------------------------------------
 # 2. GENERATED CODE IMPORTS
 # ----------------------------------------------------
 
-# These imports will now succeed because the directory containing them 
-# (the 'Client' folder) is in sys.path.
 import library_pb2
 import library_pb2_grpc
 
-# NOTE: This address MUST match the running gRPC server address (server/grpc_handler.py)
 SERVER_ADDRESS = 'localhost:50051' 
 
 class LibraryClient:
@@ -35,7 +26,8 @@ class LibraryClient:
     Client-side wrapper to manage remote calls (RPCs) to the gRPC Server.
     """
     def __init__(self):
-        self.channel = grpc.insecure_channel(SERVER_ADDRESS)
+        # NOTE: Using insecure_channel for development. Use secure channel for production.
+        self.channel = grpc.insecure_channel(SERVER_ADDRESS) 
         self.stub = library_pb2_grpc.LibraryServiceStub(self.channel)
 
     # ----------------------------------------------------
@@ -48,7 +40,6 @@ class LibraryClient:
             response = self.stub.UserLogin(request)
             return response
         except grpc.RpcError as e:
-            # Error calling RPC (Server offline or connection refused)
             print(f"Error calling UserLogin RPC: {e.details()}")
             return library_pb2.LoginResponse(
                 success=False, 
@@ -63,30 +54,48 @@ class LibraryClient:
         request = library_pb2.SearchRequest(query=query)
         
         try:
-            # Call the remote RPC and receive the iterable stream of results
+            # NOTE: We convert the stream to a list for Django context rendering
             return list(self.stub.SearchBooks(request))
         except grpc.RpcError as e:
             print(f"Error calling SearchBooks RPC: {e.details()}")
-            return [] 
-            
+            return []
+
     # ----------------------------------------------------
     # C. Inventory Management (Create Book)
     # ----------------------------------------------------
-    def create_book(self, title, author, isbn, is_available):
-        """Calls the remote CreateBook RPC on the server to add a new book."""
-        book_request = library_pb2.Book(
-            title=title,
-            author=author,
-            isbn=isbn,
-            is_available=is_available 
+    # You should add the CreateBook implementation here when ready.
+    # For now, we continue with the profile update section.
+    # ----------------------------------------------------
+    
+    # ----------------------------------------------------
+    # D. Staff Management (Update Profile)
+    # ----------------------------------------------------
+    def update_staff_profile(self, staff_id, new_username, new_email, current_password, new_password=""):
+        """
+        Calls the remote UpdateStaffProfile RPC to change staff credentials.
+        Returns a StatusResponse.
+        """
+        request = library_pb2.UpdateProfileRequest(
+            staff_id=str(staff_id), # Ensures ID is consistently a string for the RPC
+            new_username=new_username,
+            new_email=new_email,
+            current_password=current_password,
+            new_password=new_password 
         )
-        
+
         try:
-            response = self.stub.CreateBook(book_request)
+            response = self.stub.UpdateStaffProfile(request)
             return response
+            
         except grpc.RpcError as e:
+            # Catch the underlying gRPC error (e.g., UNAVAILABLE, UNIMPLEMENTED, UNAUTHENTICATED)
+            status_code = e.code()
             details = e.details()
+            
+            print(f"Error calling UpdateStaffProfile RPC. Status: {status_code.name}, Details: {details}")
+            
+            # Return a failure status response for the view to handle
             return library_pb2.StatusResponse(
                 success=False, 
-                message=f"RPC Error: {details}"
+                message=f"RPC Failed ({status_code.name}): {details}"
             )

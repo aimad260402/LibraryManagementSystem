@@ -5,12 +5,13 @@ from django.http import HttpRequest
 from django.urls import reverse
 from .grpc_client import LibraryClient
 
-# --- Authentication Views ---
+# ----------------------------------------------------
+# A. Authentication Views (No Change)
+# ----------------------------------------------------
 
 def staff_login(request: HttpRequest):
-    """Handles the display and processing of the librarian login form."""
+    # ... (Implementation remains the same) ...
     if request.session.get('staff_id'):
-        # If already logged in, redirect to the dashboard
         return redirect('dashboard') 
 
     message = request.session.pop('login_message', None)
@@ -20,60 +21,52 @@ def staff_login(request: HttpRequest):
         password = request.POST.get('password')
 
         client = LibraryClient()
-        # Call the remote gRPC service
         auth_response = client.staff_login(username, password)
 
         if auth_response.success:
-            # Store staff identification for session tracking
+            # Storing the ID and username after successful auth
             request.session['staff_id'] = auth_response.user_id 
             request.session['username'] = username
             return redirect('dashboard')
         else:
-            message = auth_response.message # Display the error message from the gRPC server
+            message = auth_response.message
             
     return render(request, 'client_app/login.html', {'message': message})
 
 def staff_logout(request: HttpRequest):
-    """Logs the staff member out by clearing the session."""
+    # ... (Implementation remains the same) ...
     request.session.clear()
     request.session['login_message'] = "You have been logged out."
     return redirect('staff_login')
 
 
-# --- Core Management Views ---
+# ----------------------------------------------------
+# B. Core Management Views (No Change)
+# ----------------------------------------------------
 
 def dashboard(request: HttpRequest):
-    """The main librarian interface, featuring book search."""
-    # Enforce authentication via session check
+    # ... (Implementation remains the same) ...
     staff_id = request.session.get('staff_id')
     if not staff_id:
         request.session['login_message'] = "Please log in to view the dashboard."
         return redirect('staff_login')
         
     query = request.GET.get('q', '') 
-    book_results = []
-    
     client = LibraryClient()
-    
-    # Fetch books based on query (or return all available books if query is empty)
     book_results = client.search_books(query)
 
     context = {
         'username': request.session.get('username'),
         'query': query,
-        'book_results': book_results, # List of Protobuf Book objects
+        'book_results': book_results,
         'title': "Librarian Dashboard & Search"
     }
-    
     return render(request, 'client_app/dashboard.html', context)
 
-
-# 🚨 FIX: ADDED MISSING VIEW FUNCTION 🚨
 def add_book(request: HttpRequest):
-    """Handles the form for creating a new book and calling the CreateBook RPC."""
+    # ... (Implementation remains the same) ...
     staff_id = request.session.get('staff_id')
     
-    # Enforce authentication 
     if not staff_id:
         request.session['login_message'] = "Authentication required."
         return redirect('staff_login')
@@ -84,45 +77,94 @@ def add_book(request: HttpRequest):
     }
     
     if request.method == 'POST':
-        # Retrieve form data
         title = request.POST.get('title')
         author = request.POST.get('author')
         isbn = request.POST.get('isbn')
-        # Checkbox handling
         is_available = request.POST.get('is_available') == 'on' 
 
         client = LibraryClient()
-        
-        # Call the remote gRPC RPC
         response = client.create_book(title, author, isbn, is_available)
         
-        # Prepare context based on gRPC response
         context['success'] = response.success
         context['message'] = response.message
         
         if response.success:
             context['message'] += f" (New ID: {response.entity_id})"
-        
+            
     return render(request, 'client_app/add_book.html', context)
+
+# ----------------------------------------------------
+# C. Staff Profile Management (Cleaned)
+# ----------------------------------------------------
+
 def staff_profile(request: HttpRequest):
     """
-    Handles the staff profile interface where the librarian can update information.
-    For now, this is a placeholder using session data.
+    Handles staff profile viewing and updates using the UpdateStaffProfile RPC.
     """
     staff_id = request.session.get('staff_id')
+    
+    # 💡 CLEANUP 1: Moved debug line inside the POST block, or rely on server debug.
     
     if not staff_id:
         request.session['login_message'] = "Authentication required."
         return redirect('staff_login')
     
+    # Initialize context with current session data
     context = {
         'username': request.session.get('username'),
+        'email': request.session.get('email', 'Update your email address'), 
         'staff_id': staff_id,
         'title': "Librarian Profile"
     }
     
-    # In a later step, you would call gRPC to get or update profile details here:
-    # client = LibraryClient()
-    # profile_details = client.get_staff_details(staff_id)
-    
+    if request.method == 'POST':
+        
+        # 💡 CLEANUP 2: Use .get(key, default) for robustness against missing form data
+        new_username = request.POST.get('new_username', context['username']) # Default to current session username
+        new_email = request.POST.get('new_email', context['email'])
+        current_password = request.POST.get('current_password', '')
+        new_password = request.POST.get('new_password', '')
+        
+        # 2. Basic Validation: Must supply current password
+        if not current_password:
+            context['error_message'] = "Security Check: You must enter your current password to save any changes."
+            # Render context with new_username/new_email retained from POST data
+            context['username'] = new_username 
+            context['email'] = new_email
+            return render(request, 'client_app/staff_profile.html', context)
+
+        # 3. Call gRPC RPC
+        client = LibraryClient()
+        response = client.update_staff_profile(
+            staff_id=staff_id,
+            new_username=new_username,
+            new_email=new_email,
+            current_password=current_password,
+            new_password=new_password
+        )
+
+        # 4. Process gRPC Response (StatusResponse)
+        if response.success:
+            context['success_message'] = response.message
+            
+            # Update local session state on success
+            request.session['username'] = new_username
+            if new_email:
+                request.session['email'] = new_email
+
+            # Force re-login if password was changed for security
+            if new_password:
+                request.session.clear()
+                request.session['login_message'] = "Password changed successfully. Please log in again."
+                return redirect('staff_login')
+
+        else:
+            # Display the error message from the gRPC client/server
+            context['error_message'] = response.message
+            # Re-set context values for re-rendering (Keep user input)
+            context['username'] = new_username 
+            context['email'] = new_email 
+
+
+    # Re-render the page with success/error messages
     return render(request, 'client_app/staff_profile.html', context)
