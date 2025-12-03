@@ -26,7 +26,6 @@ class LibraryClient:
     Client-side wrapper to manage remote calls (RPCs) to the gRPC Server.
     """
     def __init__(self):
-        # NOTE: Using insecure_channel for development. Use secure channel for production.
         self.channel = grpc.insecure_channel(SERVER_ADDRESS) 
         self.stub = library_pb2_grpc.LibraryServiceStub(self.channel)
 
@@ -54,19 +53,40 @@ class LibraryClient:
         request = library_pb2.SearchRequest(query=query)
         
         try:
-            # NOTE: We convert the stream to a list for Django context rendering
             return list(self.stub.SearchBooks(request))
         except grpc.RpcError as e:
             print(f"Error calling SearchBooks RPC: {e.details()}")
             return []
 
     # ----------------------------------------------------
-    # C. Inventory Management (Create Book)
+    # C. Inventory Management (Create Book) 🚀 FINAL ADDITION 🚀
     # ----------------------------------------------------
-    # You should add the CreateBook implementation here when ready.
-    # For now, we continue with the profile update section.
-    # ----------------------------------------------------
-    
+    def create_book(self, title, author, isbn, total_copies, image_path=None):
+        """Calls the remote CreateBook RPC on the server to add a new book."""
+        
+        # NOTE: Available copies is set on the server; we only pass the total.
+        book_request = library_pb2.Book(
+            title=title,
+            author=author,
+            isbn=isbn,
+            total_copies=total_copies, 
+            image_url=image_path if image_path else "" 
+        )
+        
+        try:
+            response = self.stub.CreateBook(book_request)
+            return response
+        except grpc.RpcError as e:
+            status_code = e.code()
+            details = e.details()
+            
+            print(f"Error calling CreateBook RPC. Status: {status_code.name}, Details: {details}")
+            
+            return library_pb2.StatusResponse(
+                success=False, 
+                message=f"RPC Failed ({status_code.name}): {details}"
+            )
+
     # ----------------------------------------------------
     # D. Staff Management (Update Profile)
     # ----------------------------------------------------
@@ -76,7 +96,7 @@ class LibraryClient:
         Returns a StatusResponse.
         """
         request = library_pb2.UpdateProfileRequest(
-            staff_id=str(staff_id), # Ensures ID is consistently a string for the RPC
+            staff_id=str(staff_id), 
             new_username=new_username,
             new_email=new_email,
             current_password=current_password,
@@ -88,13 +108,11 @@ class LibraryClient:
             return response
             
         except grpc.RpcError as e:
-            # Catch the underlying gRPC error (e.g., UNAVAILABLE, UNIMPLEMENTED, UNAUTHENTICATED)
             status_code = e.code()
             details = e.details()
             
             print(f"Error calling UpdateStaffProfile RPC. Status: {status_code.name}, Details: {details}")
             
-            # Return a failure status response for the view to handle
             return library_pb2.StatusResponse(
                 success=False, 
                 message=f"RPC Failed ({status_code.name}): {details}"

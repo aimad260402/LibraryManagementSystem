@@ -27,7 +27,7 @@ if _version_not_supported:
 
 class LibraryServiceStub(object):
     """----------------------------------------------------
-    SERVICE DEFINITION: LibraryService (The RPC API)
+    SERVICE DEFINITION
     ----------------------------------------------------
 
     """
@@ -82,21 +82,19 @@ class LibraryServiceStub(object):
 
 class LibraryServiceServicer(object):
     """----------------------------------------------------
-    SERVICE DEFINITION: LibraryService (The RPC API)
+    SERVICE DEFINITION
     ----------------------------------------------------
 
     """
 
     def UserLogin(self, request, context):
-        """Authentication
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def CreateBook(self, request, context):
-        """Inventory Management (Implemented: CreateBook, SearchBooks)
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -120,8 +118,7 @@ class LibraryServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def BorrowBook(self, request, context):
-        """Loan Management (Next steps)
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -133,8 +130,7 @@ class LibraryServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def UpdateStaffProfile(self, request, context):
-        """Staff Management (Implemented for Profile Update)
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -192,7 +188,7 @@ def add_LibraryServiceServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class LibraryService(object):
     """----------------------------------------------------
-    SERVICE DEFINITION: LibraryService (The RPC API)
+    SERVICE DEFINITION
     ----------------------------------------------------
 
     """

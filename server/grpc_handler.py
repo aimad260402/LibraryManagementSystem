@@ -9,6 +9,8 @@ from django.db.models import Q
 from django.db.utils import OperationalError
 from django.db import IntegrityError
 from django.db import transaction
+from django.contrib.auth.models import User # Correct import for Staff management
+from library_admin.models import Book # Imports your updated Book model
 
 # ----------------------------------------------------
 # 1. ROBUST DJANGO ENVIRONMENT SETUP 
@@ -25,18 +27,6 @@ except Exception as e:
     sys.exit(1)
 
 # ----------------------------------------------------
-# 2. Model and Generated Code Imports
-# ----------------------------------------------------
-from django.contrib.auth.models import User # <-- CORRECT: Import the built-in User model
-from library_admin.models import Book # Keep Book for inventory management
-# NOTE: We no longer import LibraryUser here, as it's not used in this file's logic
-
-# Import generated protobuf code 
-import library_pb2
-import library_pb2_grpc
-
-
-# ----------------------------------------------------
 # 3. The gRPC Servicer Implementation
 # ----------------------------------------------------
 
@@ -49,7 +39,7 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
             username=request.username,
             password=request.password
         )
-        # ... (UserLogin logic remains the same, it correctly uses authenticate) ...
+        # ... (UserLogin logic remains the same) ...
         response = library_pb2.LoginResponse()
 
         if user is not None and user.is_active:
@@ -69,17 +59,28 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
 
     # B. Inventory Management (Book Creation - RPC: Unary)
     def CreateBook(self, request, context):
-        """Creates a new Book record."""
-        # ... (CreateBook logic remains the same) ...
+        """Creates a new Book record, handling quantity and image path."""
         response = library_pb2.StatusResponse()
         
         try:
+            # 1. Safely handle incoming quantity and image URL from the Protobuf request
+            total_qty = request.total_copies if request.total_copies > 0 else 1
+            image_path = request.image_url if request.image_url else None
+            
+            # 2. Create the Book instance in the database
             new_book = Book.objects.create(
                 title=request.title,
                 author=request.author,
                 isbn=request.isbn,
-                is_available=request.is_available
+                
+                # 🚀 FIX/UPDATE: Use total_copies and available_copies 🚀
+                total_copies=total_qty,
+                available_copies=total_qty, # Available copies equals total copies upon creation
+                
+                image=image_path # Save the path string
             )
+            
+            # 3. Success Response
             response.success = True
             response.message = f"Book '{request.title}' successfully created."
             response.entity_id = new_book.id
@@ -101,7 +102,6 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
     # C. Inventory Lookup (Book Search - RPC: Server Stream)
     def SearchBooks(self, request, context):
         """Searches books and streams results back to the client."""
-        # ... (SearchBooks logic remains the same) ...
         query = request.query
         
         books = Book.objects.filter(
@@ -109,12 +109,15 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
         ).order_by('title')
         
         for book in books:
+            # 🚀 FIX/UPDATE: Return total_copies, available_copies, and image_url 🚀
             yield library_pb2.Book(
                 id=book.id,
                 title=book.title,
                 author=book.author,
                 isbn=book.isbn,
-                is_available=book.is_available
+                total_copies=book.total_copies,
+                available_copies=book.available_copies,
+                image_url=str(book.image) if book.image else "" # Safely convert ImageField to string path
             )
 
     # D. Staff Profile Update
@@ -123,9 +126,9 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
         response = library_pb2.StatusResponse()
 
         try:
-            # 1. CRITICAL FIX: Look up the user in the built-in User model (auth_user table)
+            # 1. CRITICAL FIX: Look up the user in the built-in User model
             staff_id_int = int(request.staff_id) 
-            user = User.objects.get(id=staff_id_int) # <-- FIX: Changed from LibraryUser to User
+            user = User.objects.get(id=staff_id_int) 
             
             # 2. SECURITY CHECK: Verify Current Password
             if not check_password(request.current_password, user.password):
@@ -138,7 +141,6 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
                 
                 # Update Username (if provided and changed)
                 if request.new_username and request.new_username != user.username:
-                    # FIX: Change uniqueness check to use the built-in User model
                     if User.objects.filter(username=request.new_username).exclude(id=user.id).exists():
                         context.set_code(grpc.StatusCode.ALREADY_EXISTS)
                         context.set_details("Username already taken.")
@@ -159,7 +161,7 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
             response.message = "Profile updated successfully."
             response.entity_id = user.id
 
-        except User.DoesNotExist: # <-- FIX: Changed exception to User.DoesNotExist
+        except User.DoesNotExist: 
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("Staff member not found.")
             response.success = False
