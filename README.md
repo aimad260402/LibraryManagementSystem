@@ -35,25 +35,6 @@ Database Support
 MySQL integration for persistent storage
 
 Fully managed by Django ORM and migrations
-
-Project Structure
-LibraryManagementSystem/
-│
-├── Client/                   # Frontend interface (Python + gRPC)
-│   ├── library_admin/
-│   ├── library_pb2.py        # Generated protobuf classes
-│   ├── library_pb2_grpc.py   # gRPC stubs
-│   └── manage.py
-│
-├── server/                   # Django + gRPC backend
-│   ├── library_server/
-│   ├── grpc_handler.py       # gRPC server implementation
-│   ├── library.proto         # Protocol Buffers schema
-│   └── manage.py
-│
-├── requirements.txt          # Python dependencies
-└── README.md
-
 Technologies Used
 Technology	Purpose
 Django	Web framework + authentication system
