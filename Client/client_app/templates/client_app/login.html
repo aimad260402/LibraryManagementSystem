@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<!-- <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,4 +39,85 @@
         </form>
     </div>
 </body>
+</html> -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Librarian Login | Book System</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body style="background: url('{{ MEDIA_URL }}{{ bg_image }}') center/cover no-repeat fixed;">
+
+    <div class="page-wrapper">
+        <div class="login-container">
+            <div class="header">
+
+                <!-- Logo from /Client/media/book_covers/ismac_logo.png -->
+                <div class="logo-area">
+    <img src="{{ MEDIA_URL }}{{ logo_image }}" 
+         alt="ISMAC Logo"
+         class="logo-img">
+    
+</div>
+
+                <h2 class="page-title">Library System Application Platform</h2>
+                <p class="page-subtitle">Access your Library account</p>
+            </div>
+
+            {% if message %}
+                <div class="error-message">{{ message }}</div>
+            {% endif %}
+
+            <!-- ⚠️ SAME form structure -->
+            <form method="post" action="{% url 'staff_login' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username"
+                           placeholder="Username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password"
+                           placeholder="Enter your password" required>
+                </div>
+
+                <div class="form-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="show-password">
+                        <span>Show password</span>
+                    </label>
+                    <a href="#" class="forgot-link">Forgot your password?</a>
+                </div>
+
+                <button type="submit" class="login-btn primary-btn">Log in</button>
+                <br>
+                <button type="button" class="login-btn secondary-btn">
+                    Create your Library account
+                </button>
+
+                <p class="footer-text">
+                    Developed by <a href="#" class="footer-link">ADIA</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const showPasswordCheckbox = document.getElementById('show-password');
+        const passwordInput = document.getElementById('password');
+
+        if (showPasswordCheckbox && passwordInput) {
+            showPasswordCheckbox.addEventListener('change', () => {
+                passwordInput.type = showPasswordCheckbox.checked ? 'text' : 'password';
+            });
+        }
+    </script>
+</body>
 </html>
+
