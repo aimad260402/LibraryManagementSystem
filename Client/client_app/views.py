@@ -267,5 +267,96 @@ def create_user(request: HttpRequest):
             
     return render(request, 'client_app/create_user.html', context)
         # ... (Rest of the logic) ...
+# Dans Client/client_app/views.py (Ajoutez/Vérifiez ces fonctions)
 
+def users_list(request: HttpRequest):
+    """Affiche la liste de tous les utilisateurs staff."""
+    staff_id = request.session.get('staff_id')
+    if not staff_id:
+        request.session['login_message'] = "Authentification nécessaire pour voir les utilisateurs."
+        return redirect('staff_login')
+        
+    client = LibraryClient()
+    user_results = client.get_all_users()
+    
+    # Récupérer les messages de session après une action d'édition ou de suppression
+    list_message = request.session.pop('list_message', None)
+    list_error = request.session.pop('list_error', None)
+
+    context = {
+        'username_session': request.session.get('username'),
+        'title': "Liste des Utilisateurs Staff",
+        'user_results': user_results,
+        'message': list_message,
+        'error_message': list_error
+    }
+    
+    return render(request, 'client_app/users_list.html', context)
+
+
+def edit_user(request: HttpRequest, user_id):
+    """Gère l'affichage du formulaire et la soumission de l'édition d'utilisateur."""
+    if not request.session.get('staff_id'):
+        return redirect('staff_login')
+    
+    client = LibraryClient()
+    context = {
+        'username_session': request.session.get('username'),
+        'title': "Éditer l'utilisateur",
+        'user_id': user_id,
+        'error_message': None,
+        'success_message': None
+    }
+
+    if request.method == 'POST':
+        # 1. Récupération des données POST
+        new_username = request.POST.get('username')
+        new_email = request.POST.get('email')
+        current_password_security = request.POST.get('current_password_security', '') 
+        new_password = request.POST.get('new_password', '')
+
+        # 2. Appel gRPC pour la mise à jour (RPC UpdateStaffProfile)
+        update_response = client.update_staff_profile(
+            staff_id=user_id,
+            new_username=new_username,
+            new_email=new_email,
+            current_password=current_password_security,
+            new_password=new_password
+        )
+        
+        if update_response.success:
+            request.session['list_message'] = "Profil mis à jour avec succès."
+            # Rediriger vers la liste après la mise à jour
+            return redirect('users_list')
+        else:
+            context['error_message'] = update_response.message
+            # Recharger les détails du user pour pré-remplir le formulaire en cas d'erreur
+            context['user_details'] = client.get_user_details(user_id) 
+            
+    else:
+        # Affichage initial du formulaire (méthode GET)
+        user_details = client.get_user_details(user_id)
+        if not user_details or not user_details.user_id:
+            request.session['list_error'] = "Utilisateur introuvable."
+            return redirect('users_list')
+            
+        context['user_details'] = user_details
+
+    return render(request, 'client_app/edit_user.html', context)
+
+
+def delete_user_action(request: HttpRequest, user_id):
+    """Gère la désactivation d'un utilisateur (suppression logique) via POST."""
+    if not request.session.get('staff_id') or request.method != 'POST':
+        return redirect('users_list') 
+
+    client = LibraryClient()
+    response = client.delete_user(user_id) # Appel du nouveau wrapper client.delete_user
+
+    if response.success:
+        request.session['list_message'] = response.message
+    else:
+        request.session['list_error'] = response.message
+
+    return redirect('users_list')
 
