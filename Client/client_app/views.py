@@ -54,16 +54,16 @@ def staff_logout(request: HttpRequest):
 # ----------------------------------------------------
 
 def dashboard(request: HttpRequest):
-    # 🔹 Add your media images here
+    # 🔹 Images used on both login & dashboard
     bg_image = "book_covers/Background.jpg"
     logo_image = "book_covers/ismac_logo.png"
-    # ... (Implementation remains the same) ...
+
     staff_id = request.session.get('staff_id')
     if not staff_id:
         request.session['login_message'] = "Please log in to view the dashboard."
         return redirect('staff_login')
-        
-    query = request.GET.get('q', '') 
+
+    query = request.GET.get('q', '')
     client = LibraryClient()
     book_results = client.search_books(query)
 
@@ -71,66 +71,70 @@ def dashboard(request: HttpRequest):
         'username': request.session.get('username'),
         'query': query,
         'book_results': book_results,
-        'title': "Librarian Dashboard & Search"
+        'title': "Librarian Dashboard & Search",
+        'bg_image': bg_image,          # 👈 added
+        'logo_image': logo_image,      # 👈 added
     }
     return render(request, 'client_app/dashboard.html', context)
 
-# 🚀 CRITICAL UPDATE: ADD_BOOK VIEW FOR FILE UPLOADS AND QUANTITY 🚀
+# 🚀 ADD_BOOK VIEW WITH BACKGROUND IMAGE SUPPORT
 def add_book(request: HttpRequest):
     staff_id = request.session.get('staff_id')
-    
+
     if not staff_id:
         request.session['login_message'] = "Authentication required."
         return redirect('staff_login')
 
+    # 🔥 Background image path (stored in MEDIA folder)
+    bg_image = "/media/book_covers/add_book_background.jpg"   # <-- CHANGE extension if needed
+
     context = {
         'username': request.session.get('username'),
-        'title': "Add New Book"
+        'title': "Add New Book",
+        'bg_image': bg_image,  # 👈 Send to HTML
     }
-    
+
     if request.method == 'POST':
         title = request.POST.get('title')
         author = request.POST.get('author')
         isbn = request.POST.get('isbn')
-        
-        # 1. Retrieve and safely cast total_copies to integer
+
+        # Validate Quantity
         try:
             total_copies = int(request.POST.get('total_copies', 1))
             if total_copies <= 0:
-                 raise ValueError
+                raise ValueError
         except ValueError:
             context['error_message'] = "Total Copies must be a positive number."
             return render(request, 'client_app/add_book.html', context)
 
+        # Handle uploaded book cover
         image_file = request.FILES.get('image')
         image_path_string = None
-        
-        # 2. Handle File Upload (Save to local media storage)
+
         if image_file:
             fs = FileSystemStorage()
-            # Saving the file and getting the path relative to MEDIA_ROOT
             image_path_string = fs.save(f'book_covers/{image_file.name}', image_file)
-            
+
+        # gRPC Client Call
         client = LibraryClient()
-        
-        # 3. Call gRPC RPC with the CORRECT arguments (total_copies and image_path)
         response = client.create_book(
-            title=title, 
-            author=author, 
-            isbn=isbn, 
-            total_copies=total_copies, 
-            image_path=image_path_string 
+            title=title,
+            author=author,
+            isbn=isbn,
+            total_copies=total_copies,
+            image_path=image_path_string
         )
-        
-        # 4. Handle Response
+
+        # Response Handling
         context['success'] = response.success
         context['message'] = response.message
-        
+
         if response.success:
             context['message'] += f" (New ID: {response.entity_id})"
-            # Note: We don't reset form fields here, allowing user to see previous input
-            
+
     return render(request, 'client_app/add_book.html', context)
+
 
 # ----------------------------------------------------
 # C. Staff Profile Management (No Change)

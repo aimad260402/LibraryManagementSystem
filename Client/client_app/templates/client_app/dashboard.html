@@ -117,10 +117,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Librarian Dashboard | Inventory</title>
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=2">
-
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=3">
     <style>
-        /* keep your extra styles */
+        /* Extra table styles that were inlined before */
         .book-cover {
             width: 40px;
             height: auto;
@@ -133,55 +132,107 @@
 </head>
 <body class="dashboard-page">
 
+<!-- ================= PROFILE SIDE PANEL ================= -->
+<div class="profile-panel" id="profilePanel">
+    <!-- dark overlay -->
+    <div class="profile-panel-overlay" id="profileOverlay"></div>
+
+    <!-- sliding card -->
+    <aside class="profile-panel-body">
+        <div class="profile-panel-header">
+            <button type="button" class="profile-panel-close" id="profileClose">×</button>
+
+            <div class="profile-panel-user">
+                <div class="profile-panel-avatar">👤</div>
+                <div>
+                    <p class="profile-panel-name">
+                        {{ username|default:"Librarian" }}
+                    </p>
+                    <p class="profile-panel-handle">
+                        @{{ username|default:"librarian" }}
+                    </p>
+                </div>
+            </div>
+
+            <a href="{% url 'staff_profile' %}" class="profile-panel-edit-btn">
+                Edit Profile
+            </a>
+        </div>
+
+        <nav class="profile-panel-menu">
+            <button type="button"
+                    class="profile-panel-item"
+                    onclick="window.location.href='{% url 'staff_profile' %}'">
+                <span>Profile</span>
+                <span class="profile-panel-arrow">›</span>
+            </button>
+
+            <button type="button"
+                    class="profile-panel-item profile-panel-item-danger"
+                    onclick="window.location.href='{% url 'staff_logout' %}'">
+                <span>Log out</span>
+                <span class="profile-panel-arrow">›</span>
+            </button>
+        </nav>
+    </aside>
+</div>
+<!-- ===================================================== -->
 
 <div class="dashboard-layout">
 
-    <!-- LEFT SIDEBAR -->
+    <!-- ========== LEFT SIDEBAR ========== -->
     <aside class="dashboard-sidebar">
-       <div class="sidebar-logo">
-            <img src="{{ MEDIA_URL }}{{ logo_image }}" alt="ISMAC Logo" class="logo-img">
-        </div>
+        <div class="sidebar-logo">
+     <img src="{{ MEDIA_URL }}{{ logo_image }}" 
+         alt="ISMAC Logo"
+         class="logo-img">
+</div>
+
         <nav class="sidebar-nav">
             <p class="sidebar-section-label">LIBRARY</p>
+
             <a href="{% url 'dashboard' %}" class="sidebar-link active">
-                📊 Dashboard
+                Dashboard
             </a>
+
             <a href="{% url 'add_book' %}" class="sidebar-link">
-                ➕ Add New Book
+                Add New Book
             </a>
+
             <a href="#" class="sidebar-link">
-                📖 Borrowed Books
+                Borrowed Books
             </a>
-                 📖 users
-            </a>
-            <!-- <a href="#" class="sidebar-link">
-                {% comment %}  Returns {% endcomment %}
-            </a> -->
-        
 
             <p class="sidebar-section-label">ACCOUNT</p>
+
             <a href="{% url 'staff_profile' %}" class="sidebar-link">
                 👤 My Profile
             </a>
         </nav>
     </aside>
 
-    <!-- RIGHT MAIN CONTENT -->
+    <!-- ========== MAIN AREA ========== -->
     <main class="dashboard-main">
         <div class="dashboard-main-inner">
 
-            <!-- TOP SEARCH BAR + USER -->
+            <!-- TOP BAR -->
             <header class="topbar">
                 <div class="topbar-search">
-                    <input type="text" placeholder="Search in dashboard..." />
+                    <input type="text" placeholder="Search in dashboard...">
                 </div>
+
                 <div class="topbar-user">
                     <span class="topbar-username">{{ username|default:"Librarian" }}</span>
-                    <span class="topbar-avatar">👤</span>
+                    <!-- button that opens the side panel -->
+                    <button type="button"
+                            class="topbar-avatar-btn"
+                            id="profileToggle">
+                        👤
+                    </button>
                 </div>
             </header>
 
-            <!-- HERO BANNER (like Careflow purple block) -->
+            <!-- HERO BANNER -->
             <section class="hero-banner">
                 <div class="hero-text-block">
                     <p class="hero-eyebrow">Dashboard</p>
@@ -190,9 +241,9 @@
                         Welcome to your library space. Manage books, track loans, and keep your catalog organized.
                     </p>
                 </div>
+
                 <div class="hero-actions">
-                
-                    <!-- keep real Profile/Logout buttons from your original code -->
+                    <!-- keep your existing Profile / Log Out buttons if you like 
                     <div class="hero-user-controls">
                         <a href="{% url 'staff_profile' %}" class="nav-button profile-btn">
                             ⚙️ Profile
@@ -200,16 +251,20 @@
                         <a href="{% url 'staff_logout' %}" class="nav-button logout-btn">
                             🚪 Log Out
                         </a>
-                    </div>
+                    </div>-->
                 </div>
             </section>
 
-            <!-- SUMMARY CARDS ROW (visual only, no backend yet) -->
+            <!-- SUMMARY CARDS -->
             <section class="summary-row">
                 <article class="summary-card">
                     <h3>Books in Catalog</h3>
-                    <p class="summary-number">{{ book_results|length|default:"0" }}</p>
-                    <p class="summary-caption">Total books found in current search.</p>
+                    <p class="summary-number">
+                        {{ book_results|length|default:"0" }}
+                    </p>
+                    <p class="summary-caption">
+                        Total books found in current search.
+                    </p>
                 </article>
 
                 <article class="summary-card">
@@ -217,35 +272,46 @@
                     <p class="summary-number">
                         {{ book_results|length|default:"0" }}
                     </p>
-                    <p class="summary-caption">Copies currently available (visual placeholder).</p>
+                    <p class="summary-caption">
+                        Copies currently available (visual placeholder).
+                    </p>
                 </article>
 
                 <article class="summary-card">
                     <h3>Notifications</h3>
                     <p class="summary-number">0</p>
-                    <p class="summary-caption">No notifications for now.</p>
+                    <p class="summary-caption">
+                        No notifications for now.
+                    </p>
                 </article>
             </section>
 
-            <!-- CARD: SEARCH + ADD BUTTON (your real form) -->
+            <!-- SEARCH SECTION -->
             <section class="dashboard-section">
                 <div class="section-header">
                     <h2 class="section-title">Search Inventory</h2>
-                    
                 </div>
 
-                <form method="get" action="{% url 'dashboard' %}" class="search-area">
-                    <input type="text" name="q" 
-                           placeholder="Search Title, Author, or ISBN..." 
+                <form method="get"
+                      action="{% url 'dashboard' %}"
+                      class="search-area">
+                    <input type="text"
+                           name="q"
+                           placeholder="Search Title, Author, or ISBN..."
                            value="{{ query|default:'' }}">
-                    <button type="submit" class="login-btn search-btn">🔍 Search</button>
+                    <button type="submit" class="login-btn search-btn">
+                        🔍 Search
+                    </button>
                 </form>
             </section>
 
-            <!-- CARD: RESULTS TABLE (unchanged content) -->
+            <!-- RESULTS TABLE -->
             <section class="dashboard-section">
                 {% if book_results %}
-                    <h3 class="section-subtitle">Found {{ book_results|length }} Books:</h3>
+                    <h3 class="section-subtitle">
+                        Found {{ book_results|length }} Books:
+                    </h3>
+
                     <div class="table-wrapper">
                         <table>
                             <thead>
@@ -266,9 +332,11 @@
                                     <td>{{ book.id }}</td>
                                     <td>
                                         {% if book.image_url %}
-                                            <img src="{{ MEDIA_URL }}{{ book.image_url }}" alt="{{ book.title }} Coverr" class="book-cover">
+                                            <img src="{{ MEDIA_URL }}{{ book.image_url }}"
+                                                 alt="{{ book.title }} Cover"
+                                                 class="book-cover">
                                         {% else %}
-                                            <i aria-hidden="true">🖼️</i>
+                                            🖼️
                                         {% endif %}
                                     </td>
                                     <td>{{ book.title }}</td>
@@ -280,9 +348,14 @@
                                     </td>
                                     <td>
                                         {% if book.available_copies > 0 %}
-                                            <a href="" class="action-link available-stock">Borrow</a>
+                                            <a href="#" class="action-link available-stock">
+                                                Borrow
+                                            </a>
                                         {% else %}
-                                            <a href="{% url 'return_book' %}?book_id={{ book.id }}" class="action-link unavailable-stock">Return</a>
+                                            <a href="{% url 'return_book' %}?book_id={{ book.id }}"
+                                               class="action-link unavailable-stock">
+                                                Return
+                                            </a>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -291,15 +364,37 @@
                         </table>
                     </div>
                 {% else %}
-                    <p class="no-results">No results found for query "{{ query }}".</p>
+                    <p class="no-results">
+                        No results found for query "{{ query }}".
+                    </p>
                 {% endif %}
             </section>
 
         </div>
     </main>
-
 </div>
 
+<!-- =============== JS: open / close side panel =============== -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const panel     = document.getElementById('profilePanel');
+    const toggleBtn = document.getElementById('profileToggle');
+    const closeBtn  = document.getElementById('profileClose');
+    const overlay   = document.getElementById('profileOverlay');
+
+    if (!panel || !toggleBtn) return;
+
+    function openPanel()  { panel.classList.add('open'); }
+    function closePanel() { panel.classList.remove('open'); }
+
+    toggleBtn.addEventListener('click', function () {
+        panel.classList.toggle('open');
+    });
+
+    [closeBtn, overlay].forEach(function (el) {
+        if (el) { el.addEventListener('click', closePanel); }
+    });
+});
+</script>
 </body>
 </html>
-

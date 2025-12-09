@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,5 +69,137 @@
         </form>
 
     </div>
+</body>
+</html>-->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Book | Library</title>
+
+    <!-- Reuse your existing global styles -->
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/addbook.css' %}?v=2">
+    <style>
+     body.add-book-page {
+    {% if bg_image %}
+        background-image: url("{{ bg_image }}");
+    {% else %}
+        background-image: url("{% static 'images/default-bg.jpg' %}");
+    {% endif %}
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* Optional: Soft overlay for readability */
+    body.add-book-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.25);
+    backdrop-filter: blur(1px);
+    z-index: -1;
+}
+</style>
+</head>
+<body class="add-book-page">
+<div class="add-book-shell">
+
+    <!-- Header like Careflow Documents -->
+    <header class="add-book-header">
+        <div>
+            <a href="{% url 'dashboard' %}" class="add-book-back-link">← Back to dashboard</a>
+            <div class="add-book-heading">
+                <span class="add-book-folder-icon">📚</span>
+                <div>
+                    <h1>Add New Book</h1>
+                    <p>Fill in the details below to add a new book to your catalog.</p>
+                </div>
+            </div>
+        </div>
+        <div class="add-book-header-right">
+            Logged in as: <strong>{{ username }}</strong>
+        </div>
+    </header>
+
+    <main class="add-book-main">
+        <section class="add-book-card">
+            <div class="add-book-card-header">
+                <h2 class="add-book-card-title">Book details</h2>
+                <p class="add-book-card-sub">All fields marked with * are required.</p>
+            </div>
+
+            <!-- KEEPING SAME field names and ids -->
+            <form method="post" enctype="multipart/form-data" class="add-book-form">
+                {% csrf_token %}
+
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="id_title">Title *</label>
+                        <input type="text"
+                               id="id_title"
+                               name="title"
+                               placeholder="e.g., The Distributed System Handbook"
+                               required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="id_author">Author *</label>
+                        <input type="text"
+                               id="id_author"
+                               name="author"
+                               placeholder="e.g., Jane Doe"
+                               required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="id_isbn">ISBN (13-Digit) *</label>
+                        <input type="text"
+                               id="id_isbn"
+                               name="isbn"
+                               placeholder="e.g., 978-0123456789"
+                               required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="id_copies">Total Copies in Stock *</label>
+                        <input type="number"
+                               id="id_copies"
+                               name="copies"
+                               min="1"
+                               value="1"
+                               required>
+                    </div>
+                </div>
+
+                <!-- File upload styled like a big drop zone -->
+                <div class="form-field file-field">
+                    <label for="id_image">Book Cover Image (Optional)</label>
+                    <div class="file-drop-zone">
+                        <div class="file-drop-icon">☁️</div>
+                        <div class="file-drop-text">
+                            <p>Drag &amp; drop the cover image here</p>
+                            <span>or click to choose a file (PNG, JPG…)</span>
+                        </div>
+                        <!-- same name / id as before -->
+                        <input type="file" id="id_image" name="image" accept="image/*">
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="login-btn action-button-primary addbook-submit-btn">
+                    ➕ Save Book to Inventory
+                </button>
+            </form>
+        </section>
+    </main>
+
+</div>
+
 </body>
 </html>
