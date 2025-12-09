@@ -3,11 +3,12 @@
 from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from django.urls import reverse
-from django.core.files.storage import FileSystemStorage # NEW: For file handling
-from .grpc_client import LibraryClient
+from django.core.files.storage import FileSystemStorage 
+from .grpc_client import LibraryClient 
+# NOTE: LibraryClient est importé ici et non dans les fonctions individuelles
 
 # ----------------------------------------------------
-# A. Authentication Views (No Change)
+# A. Authentication Views 
 # ----------------------------------------------------
 
 def staff_login(request: HttpRequest):
@@ -57,7 +58,7 @@ def dashboard(request: HttpRequest):
     # 🔹 Add your media images here
     bg_image = "book_covers/Background.jpg"
     logo_image = "book_covers/ismac_logo.png"
-    # ... (Implementation remains the same) ...
+    
     staff_id = request.session.get('staff_id')
     if not staff_id:
         request.session['login_message'] = "Please log in to view the dashboard."
@@ -75,7 +76,7 @@ def dashboard(request: HttpRequest):
     }
     return render(request, 'client_app/dashboard.html', context)
 
-# 🚀 CRITICAL UPDATE: ADD_BOOK VIEW FOR FILE UPLOADS AND QUANTITY 🚀
+# 🚀 ADD_BOOK VIEW
 def add_book(request: HttpRequest):
     staff_id = request.session.get('staff_id')
     
@@ -108,12 +109,11 @@ def add_book(request: HttpRequest):
         # 2. Handle File Upload (Save to local media storage)
         if image_file:
             fs = FileSystemStorage()
-            # Saving the file and getting the path relative to MEDIA_ROOT
             image_path_string = fs.save(f'book_covers/{image_file.name}', image_file)
             
         client = LibraryClient()
         
-        # 3. Call gRPC RPC with the CORRECT arguments (total_copies and image_path)
+        # 3. Call gRPC RPC
         response = client.create_book(
             title=title, 
             author=author, 
@@ -128,27 +128,165 @@ def add_book(request: HttpRequest):
         
         if response.success:
             context['message'] += f" (New ID: {response.entity_id})"
-            # Note: We don't reset form fields here, allowing user to see previous input
             
     return render(request, 'client_app/add_book.html', context)
 
+
 # ----------------------------------------------------
-# C. Staff Profile Management (No Change)
+# C. Staff Profile & User Management Views 
 # ----------------------------------------------------
-# Dans client_app/views.py (Ajoutez la fonction)
 
-# In Client/client_app/views.py (within the create_user function)
+# 🚀 1. CREATE USER VIEW
+def create_user(request: HttpRequest):
+    """
+    Handles the creation of a new Staff/Librarian account.
+    """
+    context = {
+        'username_session': request.session.get('username'), 
+        'title': "Créer un nouvel utilisateur"
+    }
 
-# In Client/client_app/views.py (The final version of the function)
+    if request.method == 'POST':
+        
+        # 1. Récupération des données POST
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        password_confirm = request.POST.get('password_confirm')
+        
+        # Conserver les données soumises pour pré-remplir le formulaire
+        context['username'] = username
+        context['email'] = email
+        
+        # 2. Validation côté client (Password Match)
+        if password != password_confirm:
+            context['success'] = False
+            context['message'] = "Erreur de validation : Les mots de passe ne correspondent pas."
+            return render(request, 'client_app/create_user.html', context)
+        
+        # 3. Validation minimum (champs requis)
+        if not username or not password:
+            context['success'] = False
+            context['message'] = "Nom d'utilisateur et mot de passe sont requis."
+            return render(request, 'client_app/create_user.html', context)
 
-from django.shortcuts import render, redirect
-from django.http import HttpRequest
-from .grpc_client import LibraryClient
-# NOTE: Ensure LibraryClient is imported at the top of views.py
+        # 4. Appel gRPC pour la Création d'utilisateur
+        client = LibraryClient()
+        response = client.create_user(username, email, password)
+        
+        # 5. Traitement de la réponse gRPC
+        context['success'] = response.success
+        context['message'] = response.message
+        
+        if response.success:
+            context['username'] = ''
+            context['email'] = ''
+            
+            request.session['login_message'] = response.message + " Veuillez vous connecter."
+            return redirect('staff_login')
+        else:
+            pass
+            
+    return render(request, 'client_app/create_user.html', context)
 
+
+# 🚀 2. USERS LIST VIEW
+def users_list(request: HttpRequest):
+    """Affiche la liste de tous les utilisateurs staff."""
+    staff_id = request.session.get('staff_id')
+    if not staff_id:
+        request.session['login_message'] = "Authentification nécessaire pour voir les utilisateurs."
+        return redirect('staff_login')
+        
+    client = LibraryClient()
+    user_results = client.get_all_users()
+    
+    list_message = request.session.pop('list_message', None)
+    list_error = request.session.pop('list_error', None)
+
+    context = {
+        'username_session': request.session.get('username'),
+        'title': "Liste des Utilisateurs Staff",
+        'user_results': user_results,
+        'message': list_message,
+        'error_message': list_error
+    }
+    
+    return render(request, 'client_app/users_list.html', context)
+
+
+# 🚀 3. EDIT USER VIEW (SIMPLIFIÉ SANS DOUBLE VÉRIFICATION DE MOT DE PASSE)
+def edit_user(request: HttpRequest, user_id):
+    """Gère l'affichage du formulaire et la soumission de l'édition d'utilisateur."""
+    if not request.session.get('staff_id'):
+        return redirect('staff_login')
+    
+    client = LibraryClient()
+    context = {
+        'username_session': request.session.get('username'),
+        'title': "Éditer l'utilisateur",
+        'user_id': user_id,
+        'error_message': None,
+        'success_message': None
+    }
+
+    if request.method == 'POST':
+        # 1. Récupération des données POST
+        new_username = request.POST.get('username')
+        new_email = request.POST.get('email')
+        # La vérification de sécurité a été retirée du Frontend pour simplification
+        new_password = request.POST.get('new_password', '')
+
+        # 🚀 FIX: Un seul appel gRPC. On envoie current_password="" pour que le Backend (grpc_handler) l'ignore.
+        
+        update_response = client.update_staff_profile(
+            staff_id=user_id, # Target the user being edited
+            new_username=new_username,
+            new_email=new_email,
+            current_password="", # <-- Fix: Envoi de chaîne vide pour éviter l'échec UNAUTHENTICATED
+            new_password=new_password
+        )
+        
+        if update_response.success:
+            request.session['list_message'] = "Profil mis à jour avec succès."
+            return redirect('users_list')
+        else:
+            context['error_message'] = update_response.message
+            context['user_details'] = client.get_user_details(user_id) 
+            
+    else:
+        # Affichage initial du formulaire (méthode GET)
+        user_details = client.get_user_details(user_id)
+        if not user_details or not user_details.user_id:
+            request.session['list_error'] = "Utilisateur introuvable."
+            return redirect('users_list')
+            
+        context['user_details'] = user_details
+
+    return render(request, 'client_app/edit_user.html', context)
+
+
+# 🚀 4. DELETE USER ACTION VIEW
+def delete_user_action(request: HttpRequest, user_id):
+    """Gère la désactivation d'un utilisateur (suppression logique) via POST."""
+    if not request.session.get('staff_id') or request.method != 'POST':
+        return redirect('users_list') 
+
+    client = LibraryClient()
+    response = client.delete_user(user_id)
+
+    if response.success:
+        request.session['list_message'] = response.message
+    else:
+        request.session['list_error'] = response.message
+
+    return redirect('users_list')
+
+
+# 5. STAFF PROFILE VIEW (Original)
 def staff_profile(request: HttpRequest):
     """
-    Handles staff profile viewing and updates using the UpdateStaffProfile RPC.
+    Handles staff profile viewing and updates for the CURRENTLY LOGGED-IN USER.
     """
     staff_id = request.session.get('staff_id')
     
@@ -156,6 +294,7 @@ def staff_profile(request: HttpRequest):
         request.session['login_message'] = "Authentication required."
         return redirect('staff_login')
     
+    # Initialization context
     context = {
         'username': request.session.get('username'),
         'email': request.session.get('email', 'Update your email address'), 
@@ -191,10 +330,12 @@ def staff_profile(request: HttpRequest):
         if response.success:
             context['success_message'] = response.message
             
+            # Update session details for display
             request.session['username'] = new_username
             if new_email:
                 request.session['email'] = new_email
 
+            # Clear session if password was changed (forces re-login)
             if new_password:
                 request.session.clear()
                 request.session['login_message'] = "Password changed successfully. Please log in again."
@@ -208,155 +349,3 @@ def staff_profile(request: HttpRequest):
 
     # Re-render the page with success/error messages
     return render(request, 'client_app/staff_profile.html', context)
-def create_user(request: HttpRequest):
-    """
-    Handles the creation of a new Staff/Librarian account by calling the 
-    gRPC UpdateStaffProfile RPC in creation mode (staff_id="").
-    """
-    
-    context = {
-        'username_session': request.session.get('username'), 
-        'title': "Créer un nouvel utilisateur"
-    }
-
-    if request.method == 'POST':
-        
-        # 1. Récupération des données POST
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        password_confirm = request.POST.get('password_confirm')
-        
-        # Conserver les données soumises pour pré-remplir le formulaire
-        context['username'] = username
-        context['email'] = email
-        
-        # 2. Validation côté client (Password Match)
-        if password != password_confirm:
-            context['success'] = False
-            context['message'] = "Erreur de validation : Les mots de passe ne correspondent pas."
-            return render(request, 'client_app/create_user.html', context)
-        
-        # 3. Validation minimum (champs requis)
-        if not username or not password:
-            context['success'] = False
-            context['message'] = "Nom d'utilisateur et mot de passe sont requis."
-            return render(request, 'client_app/create_user.html', context)
-
-        # 4. Appel gRPC pour la Création d'utilisateur (via le RPC détourné)
-        client = LibraryClient()
-        
-        # client.create_user appelle update_staff_profile avec staff_id=""
-        response = client.create_user(username, email, password)
-        
-        # 5. Traitement de la réponse gRPC (StatusResponse)
-        context['success'] = response.success
-        context['message'] = response.message
-        
-        if response.success:
-            # Si succès, effacer les données du formulaire
-            context['username'] = ''
-            context['email'] = ''
-            
-            # Définir le message de succès dans la session et rediriger vers la page de connexion
-            request.session['login_message'] = response.message + " Veuillez vous connecter."
-            return redirect('staff_login')
-        else:
-            # En cas d'échec (ex: doublon), les champs sont pré-remplis
-            pass
-            
-    return render(request, 'client_app/create_user.html', context)
-        # ... (Rest of the logic) ...
-# Dans Client/client_app/views.py (Ajoutez/Vérifiez ces fonctions)
-
-def users_list(request: HttpRequest):
-    """Affiche la liste de tous les utilisateurs staff."""
-    staff_id = request.session.get('staff_id')
-    if not staff_id:
-        request.session['login_message'] = "Authentification nécessaire pour voir les utilisateurs."
-        return redirect('staff_login')
-        
-    client = LibraryClient()
-    user_results = client.get_all_users()
-    
-    # Récupérer les messages de session après une action d'édition ou de suppression
-    list_message = request.session.pop('list_message', None)
-    list_error = request.session.pop('list_error', None)
-
-    context = {
-        'username_session': request.session.get('username'),
-        'title': "Liste des Utilisateurs Staff",
-        'user_results': user_results,
-        'message': list_message,
-        'error_message': list_error
-    }
-    
-    return render(request, 'client_app/users_list.html', context)
-
-
-def edit_user(request: HttpRequest, user_id):
-    """Gère l'affichage du formulaire et la soumission de l'édition d'utilisateur."""
-    if not request.session.get('staff_id'):
-        return redirect('staff_login')
-    
-    client = LibraryClient()
-    context = {
-        'username_session': request.session.get('username'),
-        'title': "Éditer l'utilisateur",
-        'user_id': user_id,
-        'error_message': None,
-        'success_message': None
-    }
-
-    if request.method == 'POST':
-        # 1. Récupération des données POST
-        new_username = request.POST.get('username')
-        new_email = request.POST.get('email')
-        current_password_security = request.POST.get('current_password_security', '') 
-        new_password = request.POST.get('new_password', '')
-
-        # 2. Appel gRPC pour la mise à jour (RPC UpdateStaffProfile)
-        update_response = client.update_staff_profile(
-            staff_id=user_id,
-            new_username=new_username,
-            new_email=new_email,
-            current_password=current_password_security,
-            new_password=new_password
-        )
-        
-        if update_response.success:
-            request.session['list_message'] = "Profil mis à jour avec succès."
-            # Rediriger vers la liste après la mise à jour
-            return redirect('users_list')
-        else:
-            context['error_message'] = update_response.message
-            # Recharger les détails du user pour pré-remplir le formulaire en cas d'erreur
-            context['user_details'] = client.get_user_details(user_id) 
-            
-    else:
-        # Affichage initial du formulaire (méthode GET)
-        user_details = client.get_user_details(user_id)
-        if not user_details or not user_details.user_id:
-            request.session['list_error'] = "Utilisateur introuvable."
-            return redirect('users_list')
-            
-        context['user_details'] = user_details
-
-    return render(request, 'client_app/edit_user.html', context)
-
-
-def delete_user_action(request: HttpRequest, user_id):
-    """Gère la désactivation d'un utilisateur (suppression logique) via POST."""
-    if not request.session.get('staff_id') or request.method != 'POST':
-        return redirect('users_list') 
-
-    client = LibraryClient()
-    response = client.delete_user(user_id) # Appel du nouveau wrapper client.delete_user
-
-    if response.success:
-        request.session['list_message'] = response.message
-    else:
-        request.session['list_error'] = response.message
-
-    return redirect('users_list')
-
