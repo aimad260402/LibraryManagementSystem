@@ -1,6 +1,6 @@
 /* In client_app/static/css/addbook.css */
 
-/* General form layout */
+/* General form layout 
 .add-book-form {
     padding: 20px;
     background-color: #f9f9f9;
@@ -25,9 +25,9 @@
     margin-bottom: 5px;
     font-weight: bold;
     color: #555;
-}
+}*/
 
-/* Style for all text and number inputs */
+/* Style for all text and number inputs 
 .add-book-form input[type="text"],
 .add-book-form input[type="number"] {
     width: 100%;
@@ -40,18 +40,18 @@
 
 .add-book-form input[type="text"]:focus,
 .add-book-form input[type="number"]:focus {
-    border-color: #007bff; /* Highlight on focus */
+    border-color: #007bff;*/ /* Highlight on focus 
     outline: none;
-}
+}*/
 
-/* Styling for the file input */
+/* Styling for the file input 
 .file-field input[type="file"] {
     padding: 8px 0;
     border: none;
     background: none;
 }
-
-/* Message Box Styling (Copied from general dashboard styles for consistency) */
+*/
+/* Message Box Styling (Copied from general dashboard styles for consistency) 
 .message-container {
     padding: 15px;
     margin-bottom: 20px;
@@ -70,4 +70,238 @@
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
+}*/
+.add-book-page {
+    background: radial-gradient(circle at top left, #f5e9ff 0, #f1f5ff 35%, #f9fafb 80%);
+    min-height: 100vh;
+    padding: 24px 20px 32px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.add-book-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ===== Top header (Careflow style) ===== */
+
+.add-book-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.add-book-back-link {
+    font-size: 0.85rem;
+    color: #6366f1;
+    text-decoration: none;
+}
+
+.add-book-back-link:hover {
+    text-decoration: underline;
+}
+
+.add-book-heading {
+    margin-top: 6px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.add-book-folder-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: #e0e7ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.add-book-heading h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    color: #111827;
+}
+
+.add-book-heading p {
+    margin: 2px 0 0;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.add-book-header-right {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+/* ===== Main card ===== */
+
+.add-book-main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.add-book-card {
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 18px 22px 22px;
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+}
+
+.add-book-card-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+.add-book-card-title {
+    font-size: 1.1rem;
+    margin: 0;
+    color: #111827;
+}
+
+.add-book-card-sub {
+    margin: 4px 0 0;
+    font-size: 0.87rem;
+    color: #6b7280;
+}
+
+/* ===== Form layout (keeping your classes) ===== */
+
+.add-book-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Grid for text/number fields */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 18px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+}
+
+.form-field label {
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.form-field input[type="text"],
+.form-field input[type="number"] {
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    padding: 9px 14px;
+    font-size: 0.95rem;
+    background-color: #f9fafb;
+}
+
+.form-field input[type="text"]:focus,
+.form-field input[type="number"]:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.22);
+    background-color: #ffffff;
+}
+
+/* ===== File upload – big purple drop zone ===== */
+
+.file-field {
+    margin-top: 6px;
+}
+
+.file-field label {
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* Visible drop area */
+.file-drop-zone {
+    border-radius: 16px;
+    border: 2px dashed #c4b5fd;
+    background: #f5f3ff;
+    padding: 16px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    position: relative;
+}
+
+.file-drop-zone:hover {
+    background: #ede9fe;
+}
+
+.file-drop-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    background: #e0e7ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.file-drop-text p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #111827;
+    font-weight: 500;
+}
+
+.file-drop-text span {
+    display: block;
+    font-size: 0.82rem;
+    margin-top: 2px;
+    color: #6b7280;
+}
+
+/* Hide real file input but keep same name/id */
+.file-field input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* ===== Submit button – reuse login styles but customize here ===== */
+
+.addbook-submit-btn {
+    margin-top: 8px;
+    width: 100%;
+    border-radius: 999px;
+    background: #6366f1;
+    font-weight: 600;
+}
+
+.addbook-submit-btn:hover {
+    background: #4f46e5;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 768px) {
+    .add-book-page {
+        padding: 16px 12px 24px;
+    }
+
+    .add-book-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
 }
