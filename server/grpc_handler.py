@@ -28,7 +28,7 @@ except Exception as e:
 # 2. Generated Code Imports (MUST BE AFTER django.setup())
 # ----------------------------------------------------
 from django.contrib.auth.models import User
-from library_admin.models import Book # Assuming this model exists and is correct
+from library_admin.models import Book 
 
 import library_pb2
 import library_pb2_grpc
@@ -164,10 +164,13 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
             staff_id_int = int(request.staff_id) 
             user = User.objects.get(id=staff_id_int) 
             
-            if not check_password(request.current_password, user.password):
-                context.set_code(grpc.StatusCode.UNAUTHENTICATED)
-                context.set_details("Security Check Failed: Current password is incorrect.")
-                return library_pb2.StatusResponse(success=False, message="Invalid current password.")
+            # 🚀 FIX SÉCURITÉ : Vérifier le mot de passe UNIQUEMENT s'il est fourni (non vide).
+            # Permet l'édition simple (nom/email) par l'Admin sans le mot de passe de la cible.
+            if request.current_password:
+                 if not check_password(request.current_password, user.password):
+                    context.set_code(grpc.StatusCode.UNAUTHENTICATED)
+                    context.set_details("Security Check Failed: Current password is incorrect.")
+                    return library_pb2.StatusResponse(success=False, message="Invalid current password.")
             
             with transaction.atomic():
                 
@@ -224,7 +227,7 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
             )
             
     # ----------------------------------------------------
-    # F. User Management: Get Detail (for Editing) 🚀 AJOUTÉ 🚀
+    # F. User Management: Get Detail (for Editing)
     # ----------------------------------------------------
     def GetUserDetail(self, request, context):
         """Récupère les détails d'un seul utilisateur par ID."""
@@ -251,36 +254,45 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
             return library_pb2.UserDetail()
 
     # ----------------------------------------------------
-    # G. User Management: Delete (Deactivate) 🚀 AJOUTÉ 🚀
+    # G. User Management: Delete (Physical Delete)
     # ----------------------------------------------------
     def DeleteUser(self, request, context):
-        """Désactive (supprime logiquement) un compte utilisateur."""
+        """Supprime DÉFINITIVEMENT un compte utilisateur de la base de données."""
         response = library_pb2.StatusResponse()
         try:
+            # 1. Pré-vérification de l'existence
             user_id = int(request.user_id)
             user = User.objects.get(id=user_id)
-            
-            # SECURITÉ : Interdire la désactivation du Superutilisateur
+            user_name = user.username # Stocker le nom avant la suppression
+
+            # 2. SECURITÉ : Interdire la suppression du Superutilisateur
             if user.is_superuser:
                 response.success = False
-                response.message = "Impossible de désactiver un Superutilisateur."
+                response.message = "Impossible de supprimer un Superutilisateur."
                 context.set_code(grpc.StatusCode.PERMISSION_DENIED)
                 return response
 
-            # Suppression Logique (Mettre is_active à False)
-            user.is_active = False
-            user.save()
+            # 3. SUPPRESSION DÉFINITIVE (Hard Delete)
+            user.delete() 
 
             response.success = True
-            response.message = f"Utilisateur '{user.username}' (ID {user_id}) désactivé avec succès."
+            response.message = f"Utilisateur '{user_name}' (ID {user_id}) supprimé définitivement."
             response.entity_id = user_id
 
         except User.DoesNotExist:
             response.success = False
             response.message = "Utilisateur non trouvé."
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            
+        except IntegrityError:
+            # Erreur si l'utilisateur est lié à des transactions (prêts, etc.)
+            response.success = False
+            response.message = "Échec de la suppression: L'utilisateur a des données liées (ex: prêts) dans la base de données."
+            context.set_code(grpc.StatusCode.FAILED_PRECONDITION)
+            
         except Exception as e:
             response.success = False
-            response.message = f"Erreur de suppression: {e}"
+            response.message = f"Erreur interne lors de la suppression: {e}"
             context.set_code(grpc.StatusCode.INTERNAL)
 
         return response
@@ -310,7 +322,6 @@ def serve():
 if __name__ == '__main__':
     try:
         # Simple database check to ensure connection works before starting server
-        # La connexion à la base de données doit être valide ici.
         Book.objects.exists()
         serve()
     except OperationalError as e:
