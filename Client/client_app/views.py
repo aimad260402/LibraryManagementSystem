@@ -148,9 +148,15 @@ def create_user(request: HttpRequest):
     """
     Handles the creation of a new Staff/Librarian account.
     """
+    # ✅ same media images used in login
+    bg_image = "book_covers/Background.jpg"
+    logo_image = "book_covers/ismac_logo.png"
+
     context = {
-        'username_session': request.session.get('username'), 
-        'title': "Créer un nouvel utilisateur"
+        'username_session': request.session.get('username'),
+        'title': "Créer un nouvel utilisateur",
+        'bg_image': bg_image,
+        'logo_image': logo_image,
     }
 
     if request.method == 'POST':
