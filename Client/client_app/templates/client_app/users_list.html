@@ -1,31 +1,14 @@
 {% load static %}
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }} | Gestion Utilisateurs</title>
+
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <style>
-        /* Styles spécifiques pour le tableau et les actions */
-        .action-link { 
-            cursor: pointer; 
-            margin-right: 8px; 
-            padding: 5px 8px; 
-            border-radius: 4px; 
-            text-decoration: none;
-            font-size: 0.9em;
-            display: inline-block;
-        }
-        .edit-btn { background-color: #007bff; color: white; border: none; }
-        .delete-btn { background-color: #dc3545; color: white; border: none; }
-        .active-user { color: green; font-weight: bold; }
-        .inactive-user { color: red; }
-        .action-cell { display: flex; align-items: center; }
-        .action-cell form { margin: 0; }
-        .action-cell button { cursor: pointer; }
-    </style>
 </head>
 <body>
     <div class="login-container dashboard-container">
