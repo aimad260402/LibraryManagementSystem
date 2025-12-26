@@ -47,18 +47,16 @@
                 </tr>
             </thead>
                 <tbody>
-                    {% for user in user_results %}
-                    <tr>
-                        <td>{{ user.user_id }}</td>
-                        <td>{{ user.username }}</td>
-                        <td>{{ user.email|default:"N/A" }}</td>
-                        <td>
-                            {% if user.is_superuser %}👑 Admin{% elif user.is_staff %}Staff{% else %}Standard{% endif %}
-                        </td>
-                        <td class="{% if user.is_active %}active-user{% else %}inactive-user{% endif %}">
-                            {{ user.is_active|yesno:"Actif, Désactivé" }}
-                        </td>
-                        <td>{{ user.date_joined|date:"Y-m-d" }}</td>
+                {% for user in user_results %}
+                <tr>
+                    <td>{{ user.user_id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email|default:"N/A" }}</td>
+                    <td class="role-badge">
+                        {% if user.is_superuser %}👑 Admin
+                        {% elif user.is_staff %}Staff
+                        {% else %}Standard{% endif %}
+                    </td>
                         <td class="action-cell">
                             
                             <a href="{% url 'edit_user' user_id=user.user_id %}" class="action-link edit-btn" title="Éditer">
