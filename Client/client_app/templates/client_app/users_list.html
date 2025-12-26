@@ -11,20 +11,17 @@
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 </head>
 <body>
-    <div class="login-container dashboard-container">
-        
-        <div class="header-controls" style="justify-content: space-between;">
-            <h1>👥 Liste des Utilisateurs Staff</h1>
-            <a href="{% url 'dashboard' %}" class="nav-button">
-                <i aria-hidden="true">🏠</i> Tableau de Bord
-            </a>
+    <div class="users-wrapper">
+
+    <!-- Header -->
+    <div class="users-header">
+        <h1>👥 Liste des Utilisateurs Staff</h1>
+
+        <div class="users-actions">
+            <a href="{% url 'dashboard' %}" class="btn-secondary">🏠 Tableau de Bord</a>
+            <a href="{% url 'create_user' %}" class="btn-primary">👤 Créer un Utilisateur</a>
         </div>
-        
-        <div class="action-buttons" style="margin-bottom: 20px;">
-             <a href="{% url 'create_user' %}" class="action-button-primary" style="background-color: #3f72af;">
-                <i aria-hidden="true">👤</i> Créer un Utilisateur
-            </a>
-        </div>
+    </div>
         
 
         <hr>
