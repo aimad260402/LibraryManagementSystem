@@ -34,17 +34,18 @@
         <div class="users-count">
             Utilisateurs trouvés : {{ user_results|length }}
         </div>
-            <table style="width: 100%;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nom d'utilisateur</th>
-                        <th>Email</th>
-                        <th>Rôle</th>
-                        <th>Statut</th>
-                        <th>Date de Création</th>
-                        <th style="width: 150px;">Actions</th> </tr>
-                </thead>
+            <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom d'utilisateur</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Date de Création</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
                 <tbody>
                     {% for user in user_results %}
                     <tr>
