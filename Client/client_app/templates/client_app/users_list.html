@@ -24,18 +24,16 @@
     </div>
         
 
-        <hr>
-        
         {% if message %}
-            <div class="message-container success-message">{{ message }}</div>
-        {% elif error_message %}
-            <div class="message-container error-message">{{ error_message }}</div>
-        {% endif %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% elif error_message %}
+        <div class="alert alert-error">{{ error_message }}</div>
+    {% endif %}
 
-
-        {% if user_results %}
-            <h3>Utilisateurs trouvés : {{ user_results|length }}</h3>
-            
+    {% if user_results %}
+        <div class="users-count">
+            Utilisateurs trouvés : {{ user_results|length }}
+        </div>
             <table style="width: 100%;">
                 <thead>
                     <tr>
