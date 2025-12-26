@@ -57,33 +57,15 @@
                         {% elif user.is_staff %}Staff
                         {% else %}Standard{% endif %}
                     </td>
-                        <td class="action-cell">
-                            
-                            <a href="{% url 'edit_user' user_id=user.user_id %}" class="action-link edit-btn" title="Éditer">
+                        <td class="{% if user.is_active %}status-active{% else %}status-inactive{% endif %}">
+                        {{ user.is_active|yesno:"Actif, Désactivé" }}
+                    </td>
+                    <td>{{ user.date_joined|date:"Y-m-d" }}</td>
+                    <td>
+                        <div class="actions">
+                            <a href="{% url 'edit_user' user_id=user.user_id %}" class="edit-btn">
                                 ✏️ Éditer
                             </a>
-                            
-                            <form method="POST" action="{% url 'delete_user_action' user_id=user.user_id %}" style="display: inline;" 
-                                  onsubmit="return confirm('Êtes-vous sûr de vouloir désactiver (supprimer logiquement) l\'utilisateur {{ user.username }}? Cette action est irréversible.');">
-                                {% csrf_token %}
-                                
-                                <button type="submit" class="action-link delete-btn" 
-                                        {% if user.is_superuser or not user.is_active %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}
-                                        title="Désactiver l'utilisateur">
-                                    🗑️ Supprimer
-                                </button>
-                            </form>
-                            
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p style="text-align: center;">Aucun utilisateur staff trouvé.</p>
-        {% endif %}
-
-    </div>
 </body>
 </html>
 
