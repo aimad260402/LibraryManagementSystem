@@ -19,7 +19,7 @@ sys.path.insert(0, project_root_client)
 import library_pb2
 import library_pb2_grpc
 
-SERVER_ADDRESS = 'localhost:50051' 
+SERVER_ADDRESS = 'localhost:50052' 
 
 class LibraryClient:
     """
