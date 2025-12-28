@@ -36,3 +36,12 @@ class Loan(models.Model):
     def __str__(self):
         return f"Loan of {self.book.title} to {self.patron.user.username}"
     
+class Client(models.Model):
+    nom = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    telephone = models.CharField(max_length=20)
+    adresse = models.TextField()
+    date_inscription = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nom
