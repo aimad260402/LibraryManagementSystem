@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Clients</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <style>
+        .action-link { cursor: pointer; margin-right: 8px; padding: 5px 8px; border-radius: 4px; text-decoration: none; font-size: 0.9em; display: inline-block; }
+        .edit-btn { background-color: #007bff; color: white; border: none; }
+        .delete-btn { background-color: #dc3545; color: white; border: none; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.85em; font-weight: 600; }
+        .badge-no-emprunts { background-color: #f5f5f5; color: #757575; }
+    </style>
+</head>
+<body>
+    <div class="login-container dashboard-container">
+        <div class="header-controls" style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>👥 Liste des Clients</h1>
+            <a href="{% url 'dashboard' %}" class="nav-button" style="text-decoration: none; padding: 10px; background: #eee; border-radius: 5px;">🏠 Dashboard</a>
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <a href="{% url 'create_client' %}" class="action-button-primary" style="background-color: #3f72af; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+                ➕ Ajouter un Client
+            </a>
+        </div>
+
+        <form method="get" style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <input type="text" name="q" placeholder="Rechercher un client..." value="{{ query|default:'' }}" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            <button type="submit" style="background-color: #3f72af; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">🔍 Rechercher</button>
+        </form>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                    <th style="padding: 12px; text-align: left;">ID</th>
+                    <th style="padding: 12px; text-align: left;">Nom Complet</th>
+                    <th style="padding: 12px; text-align: left;">Email</th>
+                    <th style="padding: 12px; text-align: left;">Téléphone</th>
+                    <th style="padding: 12px; text-align: left;">Date d'Inscription</th>
+                    <th style="padding: 12px; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px;">{{ client.id }}</td>
+                    <td style="padding: 12px;"><strong>{{ client.nom }}</strong></td>
+                    <td style="padding: 12px;">{{ client.email }}</td>
+                    <td style="padding: 12px;">{{ client.telephone }}</td>
+                    <td style="padding: 12px;">{{ client.date_inscription }}</td>
+                    <td style="padding: 12px;">
+                        <a href="{% url 'edit_client' client_id=client.id %}" class="action-link edit-btn">✏️ Éditer</a>
+                        <form method="POST" action="{% url 'delete_client_action' client_id=client.id %}" style="display: inline;" onsubmit="return confirm('Supprimer {{ client.nom }} ?');">
+                            {% csrf_token %}
+                            <button type="submit" class="action-link delete-btn">🗑️ Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="padding: 20px; text-align: center; color: #666;">Aucun client trouvé.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -89,6 +89,16 @@ class LibraryServiceStub(object):
                 request_serializer=library__pb2.UpdateProfileRequest.SerializeToString,
                 response_deserializer=library__pb2.StatusResponse.FromString,
                 _registered_method=True)
+        self.CreateClient = channel.unary_unary(
+                '/library_system.LibraryService/CreateClient',
+                request_serializer=library__pb2.Client.SerializeToString,
+                response_deserializer=library__pb2.StatusResponse.FromString,
+                _registered_method=True)
+        self.GetAllClients = channel.unary_stream(
+                '/library_system.LibraryService/GetAllClients',
+                request_serializer=library__pb2.SearchRequest.SerializeToString,
+                response_deserializer=library__pb2.Client.FromString,
+                _registered_method=True)
 
 
 class LibraryServiceServicer(object):
@@ -160,6 +170,18 @@ class LibraryServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def CreateClient(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAllClients(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_LibraryServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -217,6 +239,16 @@ def add_LibraryServiceServicer_to_server(servicer, server):
                     servicer.UpdateStaffProfile,
                     request_deserializer=library__pb2.UpdateProfileRequest.FromString,
                     response_serializer=library__pb2.StatusResponse.SerializeToString,
+            ),
+            'CreateClient': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateClient,
+                    request_deserializer=library__pb2.Client.FromString,
+                    response_serializer=library__pb2.StatusResponse.SerializeToString,
+            ),
+            'GetAllClients': grpc.unary_stream_rpc_method_handler(
+                    servicer.GetAllClients,
+                    request_deserializer=library__pb2.SearchRequest.FromString,
+                    response_serializer=library__pb2.Client.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -516,6 +548,60 @@ class LibraryService(object):
             '/library_system.LibraryService/UpdateStaffProfile',
             library__pb2.UpdateProfileRequest.SerializeToString,
             library__pb2.StatusResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CreateClient(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/library_system.LibraryService/CreateClient',
+            library__pb2.Client.SerializeToString,
+            library__pb2.StatusResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAllClients(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/library_system.LibraryService/GetAllClients',
+            library__pb2.SearchRequest.SerializeToString,
+            library__pb2.Client.FromString,
             options,
             channel_credentials,
             insecure,

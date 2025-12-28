@@ -1,5 +1,7 @@
 # In Client/client_app/views.py
-
+import grpc
+import library_pb2
+import library_pb2_grpc
 from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from django.urls import reverse
@@ -362,3 +364,30 @@ def staff_profile(request: HttpRequest):
 
     # Re-render the page with success/error messages
     return render(request, 'client_app/staff_profile.html', context)
+def client_list(request):
+    # Récupérer la recherche depuis l'URL (ex: ?q=nom)
+    query = request.GET.get('q', '') 
+    
+    with grpc.insecure_channel('localhost:50051') as channel:
+        stub = library_pb2_grpc.LibraryServiceStub(channel)
+        try:
+            # On envoie la vraie requête de recherche au lieu de ""
+            grpc_request = library_pb2.SearchRequest(query=query)
+            client_stream = stub.GetAllClients(grpc_request)
+            
+            clients = []
+            for c in client_stream:
+                clients.append({
+                    'id': c.id,
+                    'nom': c.nom,
+                    'email': c.email,
+                    'telephone': c.telephone,
+                    'adresse': c.adresse,
+                    'date_inscription': c.date_inscription
+                })
+        except Exception as e:
+            print(f"Erreur gRPC: {e}")
+            clients = []
+
+    # On ajoute 'query' au contexte pour le HTML
+    return render(request, 'clients_list.html', {'clients': clients, 'query': query})
