@@ -1,234 +1,111 @@
 {% load static %}
-{% load static %}
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }} | Gestion Utilisateurs</title>
-
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <style>
-        body {
-            background: #f4f6f9;
-        }
-
-        .users-wrapper {
-            max-width: 1200px;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
-            padding: 30px;
-        }
-        .users-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .users-header h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-        .users-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn-primary {
-            background: #3f72af;
-            color: #fff;
-            padding: 10px 16px;
-            border-radius: 8px;
+        /* Styles spécifiques pour le tableau et les actions */
+        .action-link { 
+            cursor: pointer; 
+            margin-right: 8px; 
+            padding: 5px 8px; 
+            border-radius: 4px; 
             text-decoration: none;
-            font-weight: 600;
-            transition: 0.2s;
+            font-size: 0.9em;
+            display: inline-block;
         }
-
-        .btn-primary:hover {
-            background: #2f5d93;
-        }
-        .btn-secondary {
-            background: #eaeef4;
-            color: #333;
-            padding: 10px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .users-count {
-            margin-bottom: 15px;
-            color: #555;
-            font-weight: 600;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        thead {
-            background: #f1f4f8;
-        }
-
-        th, td {
-            padding: 14px 12px;
-            text-align: left;
-            font-size: 0.95rem;
-        }
-
-        th {
-            font-weight: 700;
-            color: #444;
-        }
-        tbody tr {
-            border-bottom: 1px solid #eee;
-        }
-
-        tbody tr:hover {
-            background: #fafcff;
-        }
-
-        .role-badge {
-            font-weight: 600;
-        }
-        .status-active {
-            color: #1e9f4a;
-            font-weight: 700;
-        }
-
-        .status-inactive {
-            color: #c0392b;
-            font-weight: 700;
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-        }
-         .edit-btn {
-            background: #007bff;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.85rem;
-        }
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 6px;
-            border: none;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-        .delete-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .alert {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        .alert-success {
-            background: #e6f7ec;
-            color: #1e824c;
-        }
-
-        .alert-error {
-            background: #fdecea;
-            color: #c0392b;
-        }
-
-
-        </style>
+        .edit-btn { background-color: #007bff; color: white; border: none; }
+        .delete-btn { background-color: #dc3545; color: white; border: none; }
+        .active-user { color: green; font-weight: bold; }
+        .inactive-user { color: red; }
+        .action-cell { display: flex; align-items: center; }
+        .action-cell form { margin: 0; }
+        .action-cell button { cursor: pointer; }
+    </style>
 </head>
 <body>
-    <div class="users-wrapper">
-
-    <!-- Header -->
-    <div class="users-header">
-        <h1>👥 Liste des Utilisateurs Staff</h1>
-
-        <div class="users-actions">
-            <a href="{% url 'dashboard' %}" class="btn-secondary">🏠 Tableau de Bord</a>
-            <a href="{% url 'create_user' %}" class="btn-primary">👤 Créer un Utilisateur</a>
+    <div class="login-container dashboard-container">
+        
+        <div class="header-controls" style="justify-content: space-between;">
+            <h1>👥 Liste des Utilisateurs Staff</h1>
+            <a href="{% url 'dashboard' %}" class="nav-button">
+                <i aria-hidden="true">🏠</i> Tableau de Bord
+            </a>
         </div>
-    </div>
+        
+        <div class="action-buttons" style="margin-bottom: 20px;">
+             <a href="{% url 'create_user' %}" class="action-button-primary" style="background-color: #3f72af;">
+                <i aria-hidden="true">👤</i> Créer un Utilisateur
+            </a>
+        </div>
         
 
+        <hr>
+        
         {% if message %}
-        <div class="alert alert-success">{{ message }}</div>
-    {% elif error_message %}
-        <div class="alert alert-error">{{ error_message }}</div>
-    {% endif %}
+            <div class="message-container success-message">{{ message }}</div>
+        {% elif error_message %}
+            <div class="message-container error-message">{{ error_message }}</div>
+        {% endif %}
 
-    {% if user_results %}
-        <div class="users-count">
-            Utilisateurs trouvés : {{ user_results|length }}
-        </div>
-            <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nom d'utilisateur</th>
-                    <th>Email</th>
-                    <th>Rôle</th>
-                    <th>Statut</th>
-                    <th>Date de Création</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+
+        {% if user_results %}
+            <h3>Utilisateurs trouvés : {{ user_results|length }}</h3>
+            
+            <table style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom d'utilisateur</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Statut</th>
+                        <th>Date de Création</th>
+                        <th style="width: 150px;">Actions</th> </tr>
+                </thead>
                 <tbody>
-                {% for user in user_results %}
-                <tr>
-                    <td>{{ user.user_id }}</td>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.email|default:"N/A" }}</td>
-                    <td class="role-badge">
-                        {% if user.is_superuser %}👑 Admin
-                        {% elif user.is_staff %}Staff
-                        {% else %}Standard{% endif %}
-                    </td>
-                        <td class="{% if user.is_active %}status-active{% else %}status-inactive{% endif %}">
-                        {{ user.is_active|yesno:"Actif, Désactivé" }}
-                    </td>
-                    <td>{{ user.date_joined|date:"Y-m-d" }}</td>
-                    <td>
-                        <div class="actions">
-                            <a href="{% url 'edit_user' user_id=user.user_id %}" class="edit-btn">
+                    {% for user in user_results %}
+                    <tr>
+                        <td>{{ user.user_id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email|default:"N/A" }}</td>
+                        <td>
+                            {% if user.is_superuser %}👑 Admin{% elif user.is_staff %}Staff{% else %}Standard{% endif %}
+                        </td>
+                        <td class="{% if user.is_active %}active-user{% else %}inactive-user{% endif %}">
+                            {{ user.is_active|yesno:"Actif, Désactivé" }}
+                        </td>
+                        <td>{{ user.date_joined|date:"Y-m-d" }}</td>
+                        <td class="action-cell">
+                            
+                            <a href="{% url 'edit_user' user_id=user.user_id %}" class="action-link edit-btn" title="Éditer">
                                 ✏️ Éditer
                             </a>
-                            <form method="POST"
-                                  action="{% url 'delete_user_action' user_id=user.user_id %}"
-                                  onsubmit="return confirm('Êtes-vous sûr de vouloir désactiver l’utilisateur {{ user.username }} ?');">
+                            
+                            <form method="POST" action="{% url 'delete_user_action' user_id=user.user_id %}" style="display: inline;" 
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir désactiver (supprimer logiquement) l\'utilisateur {{ user.username }}? Cette action est irréversible.');">
                                 {% csrf_token %}
-                                <button type="submit"
-                                        class="delete-btn"
-                                        {% if user.is_superuser or not user.is_active %}disabled{% endif %}>
+                                
+                                <button type="submit" class="action-link delete-btn" 
+                                        {% if user.is_superuser or not user.is_active %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}
+                                        title="Désactiver l'utilisateur">
                                     🗑️ Supprimer
                                 </button>
                             </form>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                            
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="text-align: center;">Aucun utilisateur staff trouvé.</p>
+        {% endif %}
 
-    {% else %}
-        <p style="text-align:center; font-weight:600;">Aucun utilisateur staff trouvé.</p>
-    {% endif %}
-
-</div>
+    </div>
 </body>
 </html>
-
-
