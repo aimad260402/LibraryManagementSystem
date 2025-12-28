@@ -418,3 +418,36 @@ def create_client(request):
 
     # Utilise le chemin correct : client_app/create_client.html
     return render(request, 'client_app/create_client.html')
+def edit_client(request, client_id):
+    client_to_edit = None
+    
+    with grpc.insecure_channel('localhost:50051') as channel:
+        stub = library_pb2_grpc.LibraryServiceStub(channel)
+        
+        # Action : Enregistrer les modifications
+        if request.method == 'POST':
+            try:
+                updated_client = library_pb2.Client(
+                    id=int(client_id),
+                    nom=request.POST.get('nom'),
+                    email=request.POST.get('email'),
+                    telephone=request.POST.get('telephone'),
+                    adresse=request.POST.get('adresse')
+                )
+                response = stub.CreateClient(updated_client)
+                if response.success:
+                    return redirect('clients_list')
+            except Exception as e:
+                print(f"Erreur gRPC Update: {e}")
+
+        # Action : Récupérer les données pour afficher le formulaire
+        try:
+            responses = stub.GetAllClients(library_pb2.SearchRequest(query=""))
+            for c in responses:
+                if c.id == int(client_id):
+                    client_to_edit = c
+                    break
+        except Exception as e:
+            print(f"Erreur gRPC Fetch: {e}")
+
+    return render(request, 'client_app/edit_client.html', {'client': client_to_edit})
