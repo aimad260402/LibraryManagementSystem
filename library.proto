@@ -82,6 +82,11 @@ service LibraryService {
   rpc UpdateStaffProfile (UpdateProfileRequest) returns (StatusResponse);
   rpc CreateClient (Client) returns (StatusResponse);
   rpc GetAllClients (SearchRequest) returns (stream Client);
+  // Supprimer un client par son ID
+  rpc DeleteClient(ClientIdRequest) returns (ClientResponse);
+
+  // Mettre à jour les informations d'un client
+  rpc UpdateClient(Client) returns (ClientResponse);
 }
 message Client {
     int32 id = 1;
@@ -94,4 +99,8 @@ message Client {
 
 message ClientIdRequest {
     int32 client_id = 1;
+}
+message ClientResponse {
+    bool success = 1;
+    string message = 2;
 }

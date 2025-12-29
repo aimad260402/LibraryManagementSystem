@@ -370,3 +370,4 @@ if __name__ == '__main__':
         print("Please ensure your MySQL server is running and accessible.")
     except Exception as e:
         print(f"An unexpected error occurred during startup: {e}")
+

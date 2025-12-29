@@ -114,6 +114,31 @@ class LibraryServiceStub(object):
                 request_serializer=library__pb2.ClientIdRequest.SerializeToString,
                 response_deserializer=library__pb2.Client.FromString,
                 _registered_method=True)
+        self.CreateOrder = channel.unary_unary(
+                '/library_system.LibraryService/CreateOrder',
+                request_serializer=library__pb2.Order.SerializeToString,
+                response_deserializer=library__pb2.StatusResponse.FromString,
+                _registered_method=True)
+        self.GetAllOrders = channel.unary_unary(
+                '/library_system.LibraryService/GetAllOrders',
+                request_serializer=library__pb2.SearchRequest.SerializeToString,
+                response_deserializer=library__pb2.OrderListResponse.FromString,
+                _registered_method=True)
+        self.GetOrderStats = channel.unary_unary(
+                '/library_system.LibraryService/GetOrderStats',
+                request_serializer=library__pb2.SearchRequest.SerializeToString,
+                response_deserializer=library__pb2.OrderStats.FromString,
+                _registered_method=True)
+        self.DeleteOrder = channel.unary_unary(
+                '/library_system.LibraryService/DeleteOrder',
+                request_serializer=library__pb2.OrderIdRequest.SerializeToString,
+                response_deserializer=library__pb2.StatusResponse.FromString,
+                _registered_method=True)
+        self.UpdateOrderStatus = channel.unary_unary(
+                '/library_system.LibraryService/UpdateOrderStatus',
+                request_serializer=library__pb2.Order.SerializeToString,
+                response_deserializer=library__pb2.StatusResponse.FromString,
+                _registered_method=True)
 
 
 class LibraryServiceServicer(object):
@@ -218,6 +243,37 @@ class LibraryServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def CreateOrder(self, request, context):
+        """/ Gestion des Commandes
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAllOrders(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetOrderStats(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteOrder(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UpdateOrderStatus(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_LibraryServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -300,6 +356,31 @@ def add_LibraryServiceServicer_to_server(servicer, server):
                     servicer.GetClient,
                     request_deserializer=library__pb2.ClientIdRequest.FromString,
                     response_serializer=library__pb2.Client.SerializeToString,
+            ),
+            'CreateOrder': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateOrder,
+                    request_deserializer=library__pb2.Order.FromString,
+                    response_serializer=library__pb2.StatusResponse.SerializeToString,
+            ),
+            'GetAllOrders': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAllOrders,
+                    request_deserializer=library__pb2.SearchRequest.FromString,
+                    response_serializer=library__pb2.OrderListResponse.SerializeToString,
+            ),
+            'GetOrderStats': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetOrderStats,
+                    request_deserializer=library__pb2.SearchRequest.FromString,
+                    response_serializer=library__pb2.OrderStats.SerializeToString,
+            ),
+            'DeleteOrder': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteOrder,
+                    request_deserializer=library__pb2.OrderIdRequest.FromString,
+                    response_serializer=library__pb2.StatusResponse.SerializeToString,
+            ),
+            'UpdateOrderStatus': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateOrderStatus,
+                    request_deserializer=library__pb2.Order.FromString,
+                    response_serializer=library__pb2.StatusResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -734,6 +815,141 @@ class LibraryService(object):
             '/library_system.LibraryService/GetClient',
             library__pb2.ClientIdRequest.SerializeToString,
             library__pb2.Client.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CreateOrder(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/library_system.LibraryService/CreateOrder',
+            library__pb2.Order.SerializeToString,
+            library__pb2.StatusResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAllOrders(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/library_system.LibraryService/GetAllOrders',
+            library__pb2.SearchRequest.SerializeToString,
+            library__pb2.OrderListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetOrderStats(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/library_system.LibraryService/GetOrderStats',
+            library__pb2.SearchRequest.SerializeToString,
+            library__pb2.OrderStats.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DeleteOrder(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/library_system.LibraryService/DeleteOrder',
+            library__pb2.OrderIdRequest.SerializeToString,
+            library__pb2.StatusResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateOrderStatus(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/library_system.LibraryService/UpdateOrderStatus',
+            library__pb2.Order.SerializeToString,
+            library__pb2.StatusResponse.FromString,
             options,
             channel_credentials,
             insecure,

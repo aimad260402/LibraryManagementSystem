@@ -12,16 +12,18 @@
         .form-field { margin-bottom: 15px; }
         .form-field label { display: block; margin-bottom: 5px; font-weight: bold; }
         .form-field input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .message-container { padding: 15px; margin-bottom: 20px; border-radius: 5px; font-weight: bold; text-align: center; }
+        .success-message { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
     </style>
 </head>
 <body>
     <div class="login-container dashboard-container">
-        <div class="header-controls" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="header-controls" style="justify-content: space-between;">
             <div class="header" style="text-align: left;">
-                <h2>✏️ Éditer le Client: {{ client.nom }}</h2>
+                <h2>✏️ Éditer le Client: **{{ client.nom }} {{ client.prenom }}**</h2>
                 <p>ID: {{ client.id }}</p>
             </div>
-            <a href="{% url 'clients_list' %}" class="nav-button" style="text-decoration: none; padding: 10px; background: #eee; border-radius: 5px;">
+            <a href="{% url 'clients_list' %}" class="nav-button">
                 ← Retour à la liste
             </a>
         </div>
@@ -34,8 +36,13 @@
             <h3 class="form-section-title">Informations Personnelles</h3>
             
             <div class="form-field">
-                <label>Nom Complet *</label>
+                <label>Nom *</label>
                 <input type="text" name="nom" value="{{ client.nom }}" required>
+            </div>
+
+            <div class="form-field">
+                <label>Prénom *</label>
+                <input type="text" name="prenom" value="{{ client.prenom }}" required>
             </div>
 
             <div class="form-field">
@@ -48,15 +55,13 @@
                 <input type="text" name="telephone" value="{{ client.telephone }}">
             </div>
 
-            <div class="form-field">
-                <label>Adresse</label>
-                <input type="text" name="adresse" value="{{ client.adresse }}">
-            </div>
-
-            <button type="submit" class="login-btn" style="width: 100%; margin-top: 25px; background-color: #3f72af; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+            <button type="submit" class="login-btn" style="width: 100%; margin-top: 25px; background-color: #3f72af; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer;">
                 💾 Sauvegarder les Changements
             </button>
         </form>
     </div>
 </body>
 </html>
+
+
+

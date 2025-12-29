@@ -7,6 +7,8 @@ from django.http import HttpRequest
 from django.urls import reverse
 from django.core.files.storage import FileSystemStorage 
 from .grpc_client import LibraryClient 
+from django.contrib import messages
+from django.db.models import Q
 # NOTE: LibraryClient est importé ici et non dans les fonctions individuelles
 
 # ----------------------------------------------------
@@ -364,106 +366,126 @@ def staff_profile(request: HttpRequest):
 
     # Re-render the page with success/error messages
     return render(request, 'client_app/staff_profile.html', context)
-def client_list(request):
-    # Récupérer la recherche depuis l'URL (ex: ?q=nom)
-    query = request.GET.get('q', '') 
-    
-    with grpc.insecure_channel('localhost:50051') as channel:
-        stub = library_pb2_grpc.LibraryServiceStub(channel)
-        try:
-            # On envoie la vraie requête de recherche au lieu de ""
-            grpc_request = library_pb2.SearchRequest(query=query)
-            client_stream = stub.GetAllClients(grpc_request)
-            
-            clients = []
-            for c in client_stream:
-                clients.append({
-                    'id': c.id,
-                    'nom': c.nom,
-                    'email': c.email,
-                    'telephone': c.telephone,
-                    'adresse': c.adresse,
-                    'date_inscription': c.date_inscription
-                })
-        except Exception as e:
-            print(f"Erreur gRPC: {e}")
-            clients = []
+# --- UTILITAIRE : CONNEXION GRPC ---
+def get_stub():
+    channel = grpc.insecure_channel('localhost:50051')
+    return library_pb2_grpc.LibraryServiceStub(channel)
 
-    # On ajoute 'query' au contexte pour le HTML
+# --- 1. LISTE DES CLIENTS (Design Photo 4 & 5) ---
+def client_list(request):
+    query = request.GET.get('q', '') 
+    clients = []
+    
+    try:
+        stub = get_stub()
+        # On utilise SearchRequest comme défini dans le proto
+        grpc_request = library_pb2.SearchRequest(query=query)
+        client_stream = stub.GetAllClients(grpc_request)
+        
+        for c in client_stream:
+            clients.append({
+                'id': c.id,
+                'nom': c.nom,
+                'email': c.email,
+                'telephone': c.telephone,
+                'adresse': c.adresse,
+                'date_inscription': c.date_inscription
+            })
+    except Exception as e:
+        messages.error(request, f"Erreur de connexion au serveur gRPC : {e}")
+
     return render(request, 'clients_list.html', {'clients': clients, 'query': query})
+
+# --- 2. CRÉATION DE CLIENT (Design Photo 2 & 3) ---
 def create_client(request):
     if request.method == 'POST':
-        nom = request.POST.get('nom')
-        email = request.POST.get('email')
-        telephone = request.POST.get('telephone')
-        adresse = request.POST.get('adresse')
-
-        with grpc.insecure_channel('localhost:50051') as channel:
-            stub = library_pb2_grpc.LibraryServiceStub(channel)
-            try:
-                # Préparation de l'objet Client pour gRPC
-                nouveau_client = library_pb2.Client(
-                    nom=nom,
-                    email=email,
-                    telephone=telephone,
-                    adresse=adresse
-                )
-                # Appel du service CreateClient sur le serveur
-                response = stub.CreateClient(nouveau_client)
-                
-                if response.success:
-                    return redirect('clients_list')
-            except Exception as e:
-                print(f"Erreur gRPC (Création): {e}")
-
-    # Utilise le chemin correct : client_app/create_client.html
-    return render(request, 'client_app/create_client.html')
-def edit_client(request, client_id):
-    client_to_edit = None
-    
-    with grpc.insecure_channel('localhost:50051') as channel:
-        stub = library_pb2_grpc.LibraryServiceStub(channel)
-        
-        # Action : Enregistrer les modifications
-        if request.method == 'POST':
-            try:
-                updated_client = library_pb2.Client(
-                    id=int(client_id),
-                    nom=request.POST.get('nom'),
-                    email=request.POST.get('email'),
-                    telephone=request.POST.get('telephone'),
-                    adresse=request.POST.get('adresse')
-                )
-                response = stub.CreateClient(updated_client)
-                if response.success:
-                    return redirect('clients_list')
-            except Exception as e:
-                print(f"Erreur gRPC Update: {e}")
-
-        # Action : Récupérer les données pour afficher le formulaire
         try:
-            responses = stub.GetAllClients(library_pb2.SearchRequest(query=""))
-            for c in responses:
-                if c.id == int(client_id):
-                    client_to_edit = c
-                    break
-        except Exception as e:
-            print(f"Erreur gRPC Fetch: {e}")
+            stub = get_stub()
 
-    return render(request, 'client_app/edit_client.html', {'client': client_to_edit})
+            nouveau_client = library_pb2.Client(
+                nom=request.POST.get('nom'),
+                email=request.POST.get('email'),
+                telephone=request.POST.get('telephone'),
+                adresse=request.POST.get('adresse')
+            )
+
+            response = stub.CreateClient(nouveau_client)
+
+            if response.success:
+                # Cette ligne ne causera plus d'erreur NameError
+                messages.success(request, "✅ Client enregistré avec succès")
+                # Redirection vers la liste après le succès
+                return redirect('clients_list') 
+            else:
+                messages.error(request, response.message)
+
+        except Exception as e:
+            # Cette ligne ne causera plus d'erreur NameError
+            messages.error(request, f"Erreur gRPC : {e}")
+
+    return render(request, 'clients_form.html', {
+        'title': 'Nouveau Client'
+    }
+)
+def edit_client(request, client_id):
+    stub = get_stub() # Votre fonction de connexion gRPC
+    
+    # 1. On récupère les infos actuelles du client pour remplir le formulaire
+    try:
+        request_grpc = library_pb2.ClientIdRequest(client_id=int(client_id))
+        client = stub.GetClientById(request_grpc)
+    except Exception as e:
+        messages.error(request, f"Erreur gRPC : {e}")
+        return redirect('clients_list')
+
+    # 2. Si on valide le formulaire (bouton Sauvegarder)
+    if request.method == 'POST':
+        try:
+            # On récupère les nouvelles données du formulaire
+            nom = request.POST.get('nom')
+            prenom = request.POST.get('prenom')
+            email = request.POST.get('email')
+            telephone = request.POST.get('telephone')
+
+            # On appelle la fonction de mise à jour gRPC
+            update_request = library_pb2.UpdateClientRequest(
+                id=int(client_id),
+                nom=nom,
+                prenom=prenom,
+                email=email,
+                telephone=telephone
+            )
+            response = stub.UpdateClient(update_request)
+
+            if response.success:
+                messages.success(request, "Client mis à jour avec succès !")
+                return redirect('clients_list')
+            else:
+                messages.error(request, f"Erreur : {response.message}")
+        except Exception as e:
+            messages.error(request, f"Erreur lors de la modification : {e}")
+
+  
+# --- 4. SUPPRESSION DE CLIENT (Bouton rouge) ---
 def delete_client_action(request, client_id):
     if request.method == 'POST':
-        with grpc.insecure_channel('localhost:50051') as channel:
-            stub = library_pb2_grpc.LibraryServiceStub(channel)
-            try:
-                # On utilise l'ID pour identifier le client à supprimer
-                # Note: Ton .proto doit avoir DeleteClient ou on utilise un message simple
-                request_del = library_pb2.Client(id=int(client_id))
-                response = stub.DeleteClient(request_del)
+        try:
+            # 1. Connexion gRPC
+            stub = get_stub() # ou votre méthode de connexion
+            
+            # 2. Appel de la suppression (Vérifiez le nom du champ dans votre .proto)
+            # Souvent c'est client_id ou id
+            request_grpc = library_pb2.ClientIdRequest(client_id=int(client_id))
+            response = stub.DeleteClient(request_grpc)
+            
+            if response.success:
+                messages.success(request, "Client supprimé avec succès !")
+            else:
+                messages.error(request, f"Erreur : {response.message}")
                 
-                if response.success:
-                    print(f"Client {client_id} supprimé avec succès")
-            except Exception as e:
-                print(f"Erreur gRPC Suppression: {e}")
-                
+        except Exception as e:
+            print(f"DEBUG: Erreur lors de la suppression : {e}")
+            messages.error(request, "Erreur de connexion au serveur gRPC")
+
+    # 3. On revient TOUJOURS à la liste
     return redirect('clients_list')
