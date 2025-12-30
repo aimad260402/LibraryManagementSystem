@@ -6,6 +6,9 @@
 </head>
 <body>
     <h1>Emprunt #{{ loan.id }}</h1>
+     <div style="display: flex; gap: 10px;">
+                <a href="{% url 'dashboard' %}" class="nav-button" style="text-decoration: none; padding: 10px 15px; background: #dbe2ef; color: #3f72af; border-radius: 5px; font-weight: bold;">🏠 Dashboard</a>
+            </div>
     <p><strong>Client:</strong> {{ loan.client.full_name }}</p>
     <p><strong>Livre:</strong> {{ loan.book.title }}</p>
     <p><strong>Date d'emprunt:</strong> {{ loan.loan_date|date:"d/m/Y" }}</p>

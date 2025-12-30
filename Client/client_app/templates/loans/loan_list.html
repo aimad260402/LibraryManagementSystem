@@ -314,8 +314,12 @@
         <!-- Header -->
         <div class="header">
             <h1>👋 Gestion des Emprunts</h1>
+           
             <p>Gérez les prêts de livres à vos clients</p>
         </div>
+         <div style="display: flex; gap: 10px;">
+                <a href="{% url 'dashboard' %}" class="nav-button" style="text-decoration: none; padding: 10px 15px; background: #dbe2ef; color: #3f72af; border-radius: 5px; font-weight: bold;">🏠 Dashboard</a>
+            </div>
 
         <!-- Messages -->
         {% if messages %}
