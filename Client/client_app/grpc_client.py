@@ -3,6 +3,9 @@
 import grpc
 import sys
 import os
+####commendes###
+from datetime import datetime
+
 
 # ----------------------------------------------------
 # 1. PYTHON PATH FIX (CRITICAL for Django Client)
@@ -217,3 +220,77 @@ class LibraryClient:
             return self.stub.DeleteClient(request)
         except grpc.RpcError as e:
             return library_pb2.ClientResponse(success=False, message=e.details())
+        
+####commendes#####
+  # -------- EMPRUNTS (Loans) --------
+    
+    def create_loan(self, client_id, book_id, borrow_date=None, return_date=None):
+        """Crée un nouvel emprunt."""
+        borrow_date = borrow_date or datetime.now().strftime("%Y-%m-%d")
+        return_date = return_date or (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d")
+        
+        request = library_pb2.BorrowRequest(
+            client_id=str(client_id),
+            book_id=str(book_id),
+            borrow_date=borrow_date,
+            return_date=return_date
+        )
+        try:
+            return self.stub.CreateLoan(request)
+        except grpc.RpcError as e:
+            return library_pb2.BorrowResponse(success=False, message=e.details())
+
+    def get_loan(self, loan_id):
+        """Récupère les détails d'un emprunt par ID."""
+        request = library_pb2.BorrowListRequest(client_id=str(loan_id))
+        try:
+            return self.stub.GetLoan(request)
+        except grpc.RpcError as e:
+            print(f"Erreur gRPC GetLoan: {e.details()}")
+            return None
+
+    def list_loans(self, client_id=None):
+        """Liste tous les emprunts ou ceux d’un client spécifique."""
+        request = library_pb2.BorrowListRequest(client_id=str(client_id) if client_id else "")
+        try:
+            return list(self.stub.ListLoans(request))
+        except grpc.RpcError as e:
+            print(f"Erreur gRPC ListLoans: {e.details()}")
+            return []
+
+    def update_loan(self, loan_id, client_id, book_id, borrow_date, return_date):
+        """Met à jour un emprunt existant."""
+        request = library_pb2.BorrowRequest(
+            client_id=str(client_id),
+            book_id=str(book_id),
+            borrow_date=borrow_date,
+            return_date=return_date
+        )
+        try:
+            return self.stub.UpdateLoan(request)
+        except grpc.RpcError as e:
+            return library_pb2.BorrowResponse(success=False, message=e.details())
+
+    def return_book(self, loan_id):
+        """Marque un livre comme retourné."""
+        request = library_pb2.BorrowListRequest(client_id=str(loan_id))
+        try:
+            return self.stub.ReturnBook(request)
+        except grpc.RpcError as e:
+            return library_pb2.BorrowResponse(success=False, message=e.details())
+
+    def get_loan_stats(self):
+        """Récupère des statistiques globales des emprunts."""
+        try:
+            return self.stub.GetLoanStats(library_pb2.SearchRequest(query=""))
+        except grpc.RpcError as e:
+            print(f"Erreur gRPC GetLoanStats: {e.details()}")
+            return None
+
+    def get_available_books(self):
+        """Liste les livres actuellement disponibles pour emprunt."""
+        try:
+            return list(self.stub.GetAvailableBooks(library_pb2.SearchRequest(query="")))
+        except grpc.RpcError as e:
+            print(f"Erreur gRPC GetAvailableBooks: {e.details()}")
+            return []

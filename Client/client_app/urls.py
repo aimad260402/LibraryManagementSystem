@@ -20,5 +20,16 @@ urlpatterns = [
     path('clients/', views.client_list, name='clients_list'),
     path('clients/add/', views.create_client, name='create_client'),
     path('clients/edit/<int:client_id>/', views.edit_client, name='edit_client'),
-    path('clients/delete/<int:client_id>/', views.delete_client_action, name='delete_client_action')
+    path('clients/delete/<int:client_id>/', views.delete_client_action, name='delete_client_action'),
+    ###commendes#####
+    # ----------------- Loans / Emprunts -----------------
+    path('loans/', views.loan_list, name='loan_list'),
+    path('loans/create/', views.loan_create, name='loan_create'),
+    path('loans/<int:loan_id>/', views.loan_detail, name='loan_detail'),
+    path('loans/<int:loan_id>/return/', views.loan_return, name='loan_return'),
+
+    # ----------------- APIs AJAX -----------------
+    path('loans/api/stats/', views.loan_stats_api, name='loan_stats_api'),
+    path('loans/api/clients/search/', views.search_clients_api, name='search_clients_api'),
+    path('loans/api/books/available/', views.available_books_api, name='available_books_api'),
 ]

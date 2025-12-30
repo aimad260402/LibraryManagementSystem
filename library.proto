@@ -22,6 +22,15 @@ service LibraryService {
   rpc GetClient (ClientIdRequest) returns (Client);
   rpc UpdateClient (Client) returns (StatusResponse);
   rpc DeleteClient (ClientIdRequest) returns (StatusResponse);
+
+   // -------- LOANS (EMPRUNTS) -------- (👈 AJOUTEZ CES LIGNES)
+   rpc CreateLoan (CreateLoanRequest) returns (LoanResponse);
+   rpc GetLoan (GetLoanRequest) returns (LoanResponse);
+   rpc ListLoans (ListLoansRequest) returns (stream LoanResponse);
+   rpc UpdateLoan (UpdateLoanRequest) returns (LoanResponse);
+   rpc ReturnBook (ReturnBookRequest) returns (LoanResponse);
+   rpc GetLoanStats (EmptyRequest) returns (LoanStatsResponse);
+   rpc GetAvailableBooks (EmptyRequest) returns (stream Book);
 }
 
 // -------- MESSAGES --------
@@ -106,4 +115,60 @@ message BorrowListResponse {
     string book_title = 2;
     string borrow_date = 3;
     string return_date = 4;
+}
+
+
+
+
+
+// Requêtes pour les emprunts
+message CreateLoanRequest {
+   int32 client_id = 1;
+   int32 book_id = 2;
+   string due_date = 3;  // Format: YYYY-MM-DD
+}
+
+message GetLoanRequest {
+   int32 loan_id = 1;
+}
+
+message UpdateLoanRequest {
+   int32 loan_id = 1;
+   string due_date = 2;
+   string status = 3;
+}
+
+message ReturnBookRequest {
+   int32 loan_id = 1;
+}
+
+message ListLoansRequest {
+   string status = 1;      // ALL, ACTIVE, OVERDUE, RETURNED
+   string search = 2;      // Recherche par nom, email, titre
+}
+
+message EmptyRequest {}
+
+// Réponses pour les emprunts
+message LoanResponse {
+   int32 id = 1;
+   int32 client_id = 2;
+   string client_name = 3;
+   string client_email = 4;
+   int32 book_id = 5;
+   string book_title = 6;
+   string book_author = 7;
+   string loan_date = 8;
+   string due_date = 9;
+   string return_date = 10;
+   string status = 11;
+   int32 days_remaining = 12;
+   bool is_overdue = 13;
+}
+
+message LoanStatsResponse {
+   int32 active_loans = 1;
+   int32 overdue_loans = 2;
+   int32 returns_today = 3;
+   int32 total_clients = 4;
 }
