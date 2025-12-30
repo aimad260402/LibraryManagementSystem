@@ -165,3 +165,55 @@ class LibraryClient:
         except grpc.RpcError as e:
             details = e.details()
             return library_pb2.StatusResponse(success=False, message=f"Échec RPC: {details}")
+        
+   # --- GESTION DES CLIENTS ---
+    
+    def get_all_clients(self):
+        request = library_pb2.SearchRequest(query="")
+        try:
+            return list(self.stub.GetAllClients(request))
+        except grpc.RpcError:
+            return []
+
+    def get_client_details(self, client_id):
+        """Récupère les détails d'un client par son ID pour l'édition."""
+        request = library_pb2.ClientIdRequest(client_id=int(client_id))
+        try:
+            # On utilise GetClient (sans le "ById") pour correspondre au stub généré
+            return self.stub.GetClient(request)
+        except grpc.RpcError as e:
+            print(f"Erreur gRPC GetClient: {e.details()}")
+            return None
+    def create_client(self, nom, email, telephone="", adresse=""):
+        # Correction : library_pb2.Client
+        request = library_pb2.Client(
+            nom=nom,
+            email=email,
+            telephone=telephone,
+            adresse=adresse
+        )
+        try:
+            return self.stub.CreateClient(request)
+        except grpc.RpcError as e:
+            return library_pb2.StatusResponse(success=False, message=e.details())
+
+    def update_client(self, client_id, nom, email, telephone, adresse):
+    # On utilise le message Client défini dans votre .proto
+        client_msg = library_pb2.Client(
+            id=int(client_id),
+            nom=nom,
+            email=email,
+            telephone=telephone,
+            adresse=adresse
+        )
+        try:
+            return self.stub.UpdateClient(client_msg)
+        except grpc.RpcError as e:
+            return library_pb2.StatusResponse(success=False, message=str(e.details()))
+    def delete_client(self, client_id):
+        # Correction : library_pb2.ClientIdRequest
+        request = library_pb2.ClientIdRequest(client_id=int(client_id))
+        try:
+            return self.stub.DeleteClient(request)
+        except grpc.RpcError as e:
+            return library_pb2.ClientResponse(success=False, message=e.details())

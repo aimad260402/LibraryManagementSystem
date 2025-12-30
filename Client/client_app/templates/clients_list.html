@@ -31,11 +31,17 @@
         </div>
         
         <div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-            <form method="get" style="display: flex; gap: 0; flex: 1; max-width: 400px;">
-                <input type="text" name="q" placeholder="Rechercher par nom ou email..." value="{{ query|default:'' }}" 
-                       style="flex: 1; padding: 10px 15px; border: 1px solid #dbe2ef; border-radius: 5px 0 0 5px; outline: none;">
-                <button type="submit" style="background-color: #3f72af; color: white; border: none; padding: 10px 20px; border-radius: 0 5px 5px 0; cursor: pointer;">🔍</button>
+          <form method="get" style="display: flex; gap: 0; flex: 1; max-width: 400px;">
+                <input type="text" name="q" placeholder="Rechercher par nom ou email..."
+                    value="{{ query|default:'' }}"
+                    style="flex: 1; padding: 10px 15px; border: 1px solid #dbe2ef; border-radius: 5px 0 0 5px; outline: none;">
+                <button type="submit"
+                        style="background-color: #3f72af; color: white; border: none; padding: 10px 20px; border-radius: 0 5px 5px 0; cursor: pointer;">
+                    🔍
+                </button>
             </form>
+
+
 
             <div style="margin: 20px 0;">
                 <a href="{% url 'create_client' %}" class="action-button-primary" style="background-color: #3f72af; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
@@ -96,4 +102,4 @@
         </div>
     </div>
 </body>
-</html>
+</html

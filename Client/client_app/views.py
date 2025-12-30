@@ -373,15 +373,15 @@ def get_stub():
 
 # --- 1. LISTE DES CLIENTS (Design Photo 4 & 5) ---
 def client_list(request):
-    query = request.GET.get('q', '') 
+    query = request.GET.get('q', '')  # récupère la valeur de recherche
     clients = []
-    
+
     try:
-        stub = get_stub()
-        # On utilise SearchRequest comme défini dans le proto
-        grpc_request = library_pb2.SearchRequest(query=query)
+        stub = get_stub()  # ton stub gRPC
+        grpc_request = library_pb2.SearchRequest(query="")  # on récupère tous les clients
         client_stream = stub.GetAllClients(grpc_request)
         
+        # Construire la liste Python
         for c in client_stream:
             clients.append({
                 'id': c.id,
@@ -391,6 +391,15 @@ def client_list(request):
                 'adresse': c.adresse,
                 'date_inscription': c.date_inscription
             })
+        
+        # 🔹 Filtrage côté Django si query n'est pas vide
+        if query:
+            query_lower = query.lower()
+            clients = [
+                c for c in clients
+                if query_lower in c['nom'].lower() or query_lower in c['email'].lower()
+            ]
+    
     except Exception as e:
         messages.error(request, f"Erreur de connexion au serveur gRPC : {e}")
 
@@ -428,45 +437,40 @@ def create_client(request):
     }
 )
 def edit_client(request, client_id):
-    stub = get_stub() # Votre fonction de connexion gRPC
+    if not request.session.get('staff_id'):
+        return redirect('staff_login')
+
+    client_grpc = LibraryClient()
     
-    # 1. On récupère les infos actuelles du client pour remplir le formulaire
-    try:
-        request_grpc = library_pb2.ClientIdRequest(client_id=int(client_id))
-        client = stub.GetClientById(request_grpc)
-    except Exception as e:
-        messages.error(request, f"Erreur gRPC : {e}")
+    # 1. On récupère les détails (Indispensable pour remplir le formulaire)
+    client_details = client_grpc.get_client_details(client_id)
+    
+    # Si gRPC ne renvoie rien, on ne peut pas éditer
+    if not client_details or not client_details.nom:
+        print(f"Erreur : Client {client_id} introuvable via gRPC")
         return redirect('clients_list')
 
-    # 2. Si on valide le formulaire (bouton Sauvegarder)
+    context = {
+        'client_id': client_id,
+        'client_details': client_details # On passe l'objet au template
+    }
+
     if request.method == 'POST':
-        try:
-            # On récupère les nouvelles données du formulaire
-            nom = request.POST.get('nom')
-            prenom = request.POST.get('prenom')
-            email = request.POST.get('email')
-            telephone = request.POST.get('telephone')
+        # ... (votre logique de mise à jour gRPC reste la même)
+        response = client_grpc.update_client(
+            client_id=client_id,
+            nom=request.POST.get('nom'),
+            email=request.POST.get('email'),
+            telephone=request.POST.get('telephone'),
+            adresse=request.POST.get('adresse')
+        )
+        if response.success:
+            return redirect('clients_list')
+        else:
+            context['error_message'] = response.message
 
-            # On appelle la fonction de mise à jour gRPC
-            update_request = library_pb2.UpdateClientRequest(
-                id=int(client_id),
-                nom=nom,
-                prenom=prenom,
-                email=email,
-                telephone=telephone
-            )
-            response = stub.UpdateClient(update_request)
-
-            if response.success:
-                messages.success(request, "Client mis à jour avec succès !")
-                return redirect('clients_list')
-            else:
-                messages.error(request, f"Erreur : {response.message}")
-        except Exception as e:
-            messages.error(request, f"Erreur lors de la modification : {e}")
-
-  
-# --- 4. SUPPRESSION DE CLIENT (Bouton rouge) ---
+    # On utilise le fichier que vous venez de renommer
+    return render(request, 'client_app/edit_client.html', context)# --- 4. SUPPRESSION DE CLIENT (Bouton rouge) ---
 def delete_client_action(request, client_id):
     if request.method == 'POST':
         try:
@@ -488,4 +492,4 @@ def delete_client_action(request, client_id):
             messages.error(request, "Erreur de connexion au serveur gRPC")
 
     # 3. On revient TOUJOURS à la liste
-    return redirect('clients_list')
+    return redirect('clients_list') 

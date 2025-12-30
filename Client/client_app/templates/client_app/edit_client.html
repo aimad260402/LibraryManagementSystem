@@ -1,67 +1,56 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditer le Client | Gestion</title>
+    <title>Modifier Client | Gestion Bibliothèque</title>
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <style>
-        .form-section-title { margin-top: 20px; border-bottom: 1px solid #ccc; padding-bottom: 5px; color: #333; }
-        .form-field { margin-bottom: 15px; }
-        .form-field label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-field input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .message-container { padding: 15px; margin-bottom: 20px; border-radius: 5px; font-weight: bold; text-align: center; }
-        .success-message { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/edit_user.css' %}?v=1">
 </head>
-<body>
-    <div class="login-container dashboard-container">
-        <div class="header-controls" style="justify-content: space-between;">
-            <div class="header" style="text-align: left;">
-                <h2>✏️ Éditer le Client: **{{ client.nom }} {{ client.prenom }}**</h2>
-                <p>ID: {{ client.id }}</p>
-            </div>
-            <a href="{% url 'clients_list' %}" class="nav-button">
-                ← Retour à la liste
-            </a>
+<body class="auth-page" style="--auth-bg: url('{% static 'images/auth-bg.webp' %}');">
+    <div class="auth-bg"></div>
+    <div class="auth-modal">
+        <a class="auth-close" href="{% url 'clients_list' %}" aria-label="Close">×</a>
+
+        <div class="auth-header">
+            <img class="auth-logo" src="{% static 'images/logo.png' %}" alt="Logo">
+            <h1 class="auth-title">Modifier le Client</h1>
+            <p class="auth-subtitle">ID Client: <strong>{{ client_details.id }}</strong></p>
         </div>
 
-        <hr>
+        {% if error_message %}
+            <div class="auth-alert auth-alert-error">{{ error_message }}</div>
+        {% endif %}
 
-        <form method="post" class="edit-user-form"> 
+        <form method="post" class="edit-user-form">
             {% csrf_token %}
+            <div class="auth-section">
+                <div class="auth-field">
+                    <label for="id_nom">Nom complet *</label>
+                    <input type="text" id="id_nom" name="nom" value="{{ client_details.nom }}" required>
+                </div>
 
-            <h3 class="form-section-title">Informations Personnelles</h3>
-            
-            <div class="form-field">
-                <label>Nom *</label>
-                <input type="text" name="nom" value="{{ client.nom }}" required>
+                <div class="auth-field">
+                    <label for="id_email">Email</label>
+                    <input type="email" id="id_email" name="email" value="{{ client_details.email }}">
+                </div>
+
+                <div class="auth-field">
+                    <label for="id_telephone">Téléphone</label>
+                    <input type="text" id="id_telephone" name="telephone" value="{{ client_details.telephone }}">
+                </div>
+
+                <div class="auth-field">
+                    <label for="id_adresse">Adresse</label>
+                    <input type="text" id="id_adresse" name="adresse" value="{{ client_details.adresse }}">
+                </div>
             </div>
 
-            <div class="form-field">
-                <label>Prénom *</label>
-                <input type="text" name="prenom" value="{{ client.prenom }}" required>
-            </div>
-
-            <div class="form-field">
-                <label>Email *</label>
-                <input type="email" name="email" value="{{ client.email }}" required>
-            </div>
-
-            <div class="form-field">
-                <label>Téléphone</label>
-                <input type="text" name="telephone" value="{{ client.telephone }}">
-            </div>
-
-            <button type="submit" class="login-btn" style="width: 100%; margin-top: 25px; background-color: #3f72af; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer;">
-                💾 Sauvegarder les Changements
-            </button>
+            <button type="submit" class="auth-submit">💾 Enregistrer les modifications</button>
+            <p class="auth-footer"><a href="{% url 'clients_list' %}">Annuler et retourner à la liste</a></p>
         </form>
     </div>
 </body>
 </html>
-
-
-
