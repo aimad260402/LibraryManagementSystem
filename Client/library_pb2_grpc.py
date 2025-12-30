@@ -89,6 +89,41 @@ class LibraryServiceStub(object):
                 request_serializer=library__pb2.ClientIdRequest.SerializeToString,
                 response_deserializer=library__pb2.StatusResponse.FromString,
                 _registered_method=True)
+        self.CreateLoan = channel.unary_unary(
+                '/library.LibraryService/CreateLoan',
+                request_serializer=library__pb2.CreateLoanRequest.SerializeToString,
+                response_deserializer=library__pb2.LoanResponse.FromString,
+                _registered_method=True)
+        self.GetLoan = channel.unary_unary(
+                '/library.LibraryService/GetLoan',
+                request_serializer=library__pb2.GetLoanRequest.SerializeToString,
+                response_deserializer=library__pb2.LoanResponse.FromString,
+                _registered_method=True)
+        self.ListLoans = channel.unary_stream(
+                '/library.LibraryService/ListLoans',
+                request_serializer=library__pb2.ListLoansRequest.SerializeToString,
+                response_deserializer=library__pb2.LoanResponse.FromString,
+                _registered_method=True)
+        self.UpdateLoan = channel.unary_unary(
+                '/library.LibraryService/UpdateLoan',
+                request_serializer=library__pb2.UpdateLoanRequest.SerializeToString,
+                response_deserializer=library__pb2.LoanResponse.FromString,
+                _registered_method=True)
+        self.ReturnBook = channel.unary_unary(
+                '/library.LibraryService/ReturnBook',
+                request_serializer=library__pb2.ReturnBookRequest.SerializeToString,
+                response_deserializer=library__pb2.LoanResponse.FromString,
+                _registered_method=True)
+        self.GetLoanStats = channel.unary_unary(
+                '/library.LibraryService/GetLoanStats',
+                request_serializer=library__pb2.EmptyRequest.SerializeToString,
+                response_deserializer=library__pb2.LoanStatsResponse.FromString,
+                _registered_method=True)
+        self.GetAvailableBooks = channel.unary_stream(
+                '/library.LibraryService/GetAvailableBooks',
+                request_serializer=library__pb2.EmptyRequest.SerializeToString,
+                response_deserializer=library__pb2.Book.FromString,
+                _registered_method=True)
 
 
 class LibraryServiceServicer(object):
@@ -164,6 +199,49 @@ class LibraryServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def CreateLoan(self, request, context):
+        """-------- LOANS (EMPRUNTS) -------- (👈 AJOUTEZ CES LIGNES)
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetLoan(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ListLoans(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UpdateLoan(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ReturnBook(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetLoanStats(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAvailableBooks(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_LibraryServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -221,6 +299,41 @@ def add_LibraryServiceServicer_to_server(servicer, server):
                     servicer.DeleteClient,
                     request_deserializer=library__pb2.ClientIdRequest.FromString,
                     response_serializer=library__pb2.StatusResponse.SerializeToString,
+            ),
+            'CreateLoan': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateLoan,
+                    request_deserializer=library__pb2.CreateLoanRequest.FromString,
+                    response_serializer=library__pb2.LoanResponse.SerializeToString,
+            ),
+            'GetLoan': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetLoan,
+                    request_deserializer=library__pb2.GetLoanRequest.FromString,
+                    response_serializer=library__pb2.LoanResponse.SerializeToString,
+            ),
+            'ListLoans': grpc.unary_stream_rpc_method_handler(
+                    servicer.ListLoans,
+                    request_deserializer=library__pb2.ListLoansRequest.FromString,
+                    response_serializer=library__pb2.LoanResponse.SerializeToString,
+            ),
+            'UpdateLoan': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateLoan,
+                    request_deserializer=library__pb2.UpdateLoanRequest.FromString,
+                    response_serializer=library__pb2.LoanResponse.SerializeToString,
+            ),
+            'ReturnBook': grpc.unary_unary_rpc_method_handler(
+                    servicer.ReturnBook,
+                    request_deserializer=library__pb2.ReturnBookRequest.FromString,
+                    response_serializer=library__pb2.LoanResponse.SerializeToString,
+            ),
+            'GetLoanStats': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetLoanStats,
+                    request_deserializer=library__pb2.EmptyRequest.FromString,
+                    response_serializer=library__pb2.LoanStatsResponse.SerializeToString,
+            ),
+            'GetAvailableBooks': grpc.unary_stream_rpc_method_handler(
+                    servicer.GetAvailableBooks,
+                    request_deserializer=library__pb2.EmptyRequest.FromString,
+                    response_serializer=library__pb2.Book.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -520,6 +633,195 @@ class LibraryService(object):
             '/library.LibraryService/DeleteClient',
             library__pb2.ClientIdRequest.SerializeToString,
             library__pb2.StatusResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CreateLoan(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/library.LibraryService/CreateLoan',
+            library__pb2.CreateLoanRequest.SerializeToString,
+            library__pb2.LoanResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetLoan(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/library.LibraryService/GetLoan',
+            library__pb2.GetLoanRequest.SerializeToString,
+            library__pb2.LoanResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListLoans(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/library.LibraryService/ListLoans',
+            library__pb2.ListLoansRequest.SerializeToString,
+            library__pb2.LoanResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateLoan(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/library.LibraryService/UpdateLoan',
+            library__pb2.UpdateLoanRequest.SerializeToString,
+            library__pb2.LoanResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ReturnBook(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/library.LibraryService/ReturnBook',
+            library__pb2.ReturnBookRequest.SerializeToString,
+            library__pb2.LoanResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetLoanStats(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/library.LibraryService/GetLoanStats',
+            library__pb2.EmptyRequest.SerializeToString,
+            library__pb2.LoanStatsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAvailableBooks(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/library.LibraryService/GetAvailableBooks',
+            library__pb2.EmptyRequest.SerializeToString,
+            library__pb2.Book.FromString,
             options,
             channel_credentials,
             insecure,
