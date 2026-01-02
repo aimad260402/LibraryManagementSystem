@@ -139,7 +139,30 @@ def add_book(request: HttpRequest):
     return render(request, 'client_app/add_book.html', context)
 
 # --- Section Membres dans client_app/views.py ---
+def issue_book_view(request):
+    client = LibraryClient()
+    
+    if request.method == "POST":
+        member_id = request.POST.get('member_id')
+        book_id = request.POST.get('book_id')
+        
+        # Appel au serveur gRPC
+        response = client.borrow_book(member_id, book_id)
+        
+        if response.success:
+            messages.success(request, response.message)
+            return redirect('members_list') # Redirige vers la liste des membres
+        else:
+            messages.error(request, response.message)
 
+    # Récupération des données pour remplir les listes déroulantes du formulaire
+    all_members = list(client.get_all_members())
+    all_books = list(client.search_books(query="")) # Query vide pour tout avoir
+    
+    return render(request, 'client_app/issue_book.html', {
+        'members': all_members,
+        'books': all_books
+    })
 def members_list(request):
     """Affiche la liste complète des membres (clients)."""
     if not request.session.get('staff_id'):
