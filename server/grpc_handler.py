@@ -341,6 +341,37 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
             context.set_code(grpc.StatusCode.INTERNAL)
 
         return response
+    def BorrowBook(self, request, context):
+        """Gère l'emprunt d'un livre : vérifie le stock et crée un Loan."""
+        try:
+            from library_admin.models import Loan
+            from django.utils import timezone
+            from datetime import timedelta
+
+            with transaction.atomic():
+                # 1. Vérifier la disponibilité du livre
+                book = Book.objects.select_for_update().get(id=int(request.book_id))
+                if book.available_copies <= 0:
+                    return library_pb2.StatusResponse(success=False, message="Plus d'exemplaires disponibles.")
+
+                # 2. Vérifier l'existence du membre
+                member = Member.objects.get(id=int(request.member_id))
+
+                # 3. Créer le prêt
+                Loan.objects.create(
+                    book=book,
+                    member=member,
+                    due_date=timezone.now().date() + timedelta(days=14)
+                )
+
+                # 4. Décrémenter le stock
+                book.available_copies -= 1
+                book.save()
+
+                return library_pb2.StatusResponse(success=True, message=f"Prêt réussi pour '{book.title}'")
+
+        except Exception as e:
+            return library_pb2.StatusResponse(success=False, message=f"Erreur: {str(e)}")
 
 
 # ----------------------------------------------------
