@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | Gestion Membres</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <style>
+        /* Styles spécifiques pour le tableau et les actions */
+        .action-link { 
+            cursor: pointer; 
+            margin-right: 8px; 
+            padding: 5px 8px; 
+            border-radius: 4px; 
+            text-decoration: none;
+            font-size: 0.9em;
+            display: inline-block;
+        }
+        .edit-btn { background-color: #007bff; color: white; border: none; }
+        .delete-btn { background-color: #dc3545; color: white; border: none; }
+        .member-id { font-weight: bold; color: #3f72af; }
+        .action-cell { display: flex; align-items: center; }
+        .action-cell form { margin: 0; }
+        .action-cell button { cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="login-container dashboard-container">
+        
+        <div class="header-controls" style="justify-content: space-between;">
+            <h1>👥 Liste des Membres (Clients)</h1>
+            <a href="{% url 'dashboard' %}" class="nav-button">
+                <i aria-hidden="true">🏠</i> Tableau de Bord
+            </a>
+        </div>
+        
+        <div class="action-buttons" style="margin-bottom: 20px;">
+             <a href="{% url 'add_member' %}" class="action-button-primary" style="background-color: #3f72af;">
+                <i aria-hidden="true">👤</i> Inscrire un Nouveau Membre
+            </a>
+        </div>
+
+        <hr>
+        
+        {% if message %}
+            <div class="message-container success-message">{{ message }}</div>
+        {% elif error_message %}
+            <div class="message-container error-message">{{ error_message }}</div>
+        {% endif %}
+
+        {% if members %}
+            <h3>Membres enregistrés : {{ members|length }}</h3>
+            
+            <table style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom Complet</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Date d'adhésion</th>
+                        <th style="width: 150px;">Actions</th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in members %}
+                    <tr>
+                        <td class="member-id">#{{ m.id }}</td>
+                        <td>{{ m.full_name }}</td>
+                        <td>{{ m.email }}</td>
+                        <td>{{ m.phone|default:"Non renseigné" }}</td>
+                        <td>{{ m.date_joined|date:"d/m/Y" }}</td>
+                        <td class="action-cell">
+                            
+                            <a href="{% url 'edit_member' member_id=m.id %}" class="action-link edit-btn" title="Éditer le profil">
+                                ✏️ Éditer
+                            </a>
+                            
+                            <form method="POST" action="{% url 'delete_member' member_id=m.id %}" style="display: inline;" 
+                                  onsubmit="return confirm('ATTENTION : Voulez-vous supprimer DÉFINITIVEMENT le membre {{ m.full_name }} ? Cette action effacera toutes ses données.');">
+                                {% csrf_token %}
+                                <button type="submit" class="action-link delete-btn" title="Supprimer définitivement">
+                                    🗑️ Supprimer
+                                </button>
+                            </form>
+                            
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div style="padding: 40px; text-align: center;">
+                <p>Aucun membre trouvé dans la bibliothèque.</p>
+                <p><small>Cliquez sur "Inscrire un Nouveau Membre" pour commencer.</small></p>
+            </div>
+        {% endif %}
+
+    </div>
+</body>
+</html>
