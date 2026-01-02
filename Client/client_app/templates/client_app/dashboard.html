@@ -79,11 +79,9 @@
     <main class="dashboard-main">
         <div class="dashboard-main-inner">
             <header class="topbar">
-                <div class="topbar-search">
-                    
-                </div>
+                <div class="topbar-search"></div>
                 <div class="topbar-user">
-                    <span class="topbar-username"></span>
+                    <span class="topbar-username">{{ username|default:"Librarian" }}</span>
                     <button type="button" class="topbar-avatar-btn" id="profileToggle">👤</button>
                 </div>
             </header>
@@ -98,12 +96,19 @@
 
             <section class="summary-row">
                 <article class="summary-card">
-                    <h3>Total Books</h3>
-                    <p class="summary-number">{{ book_results|length|default:"0" }}</p>
+                    <h3>Available Copies</h3>
+                    <p class="summary-number" style="color: #28a745;">{{ total_available|default:"0" }}</p>
+                    <p class="summary-caption">Copies ready on shelves.</p>
                 </article>
                 <article class="summary-card">
-                    <h3>Actions Required</h3>
-                    <p class="summary-number">0</p>
+                    <h3>Borrowed Books</h3>
+                    <p class="summary-number" style="color: #dc3545;">{{ total_borrowed|default:"0" }}</p>
+                    <p class="summary-caption">Books currently with members.</p>
+                </article>
+                <article class="summary-card">
+                    <h3>Unique Titles</h3>
+                    <p class="summary-number">{{ book_results|length|default:"0" }}</p>
+                    <p class="summary-caption">Distinct titles in catalog.</p>
                 </article>
             </section>
 
@@ -168,7 +173,7 @@
                                                     📥 Borrow
                                                 </a>
                                             {% else %}
-                                                <a href="{% url 'return_book' %}?book_id={{ book.id }}" 
+                                                <a href="{% url 'issue_book' %}?book_id={{ book.id }}" 
                                                    class="action-link" 
                                                    style="color: #dc3545; text-decoration: none; font-weight: bold;">
                                                     📤 Return
