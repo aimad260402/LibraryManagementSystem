@@ -415,7 +415,29 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
         except (Book.DoesNotExist, ValueError):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             return library_pb2.Book()
-    
+    # 1. Mise à jour complète d'un livre
+def UpdateBookAvailability(self, request, context):
+    try:
+        book = Book.objects.get(id=request.id)
+        book.title = request.title
+        book.author = request.author
+        book.isbn = request.isbn
+        book.total_copies = request.total_copies
+        book.available_copies = request.available_copies
+        book.save()
+        return library_pb2.StatusResponse(success=True, message="Livre mis à jour.")
+    except Book.DoesNotExist:
+        return library_pb2.StatusResponse(success=False, message="Livre introuvable.")
+
+# 2. Suppression d'un livre
+def DeleteBook(self, request, context):
+    try:
+        book_id = int(request.query) # On utilise le champ query de SearchRequest
+        book = Book.objects.get(id=book_id)
+        book.delete()
+        return library_pb2.StatusResponse(success=True, message="Livre supprimé.")
+    except Exception as e:
+        return library_pb2.StatusResponse(success=False, message=str(e))
 # ----------------------------------------------------
 # 4. Server Initialization (Serve function remains the same)
 # ----------------------------------------------------
