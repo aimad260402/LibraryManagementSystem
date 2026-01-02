@@ -3,6 +3,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from django.urls import reverse
+from django.contrib import messages
 from django.core.files.storage import FileSystemStorage 
 from .grpc_client import LibraryClient 
 # NOTE: LibraryClient est importé ici et non dans les fonctions individuelles
@@ -80,7 +81,32 @@ def dashboard(request: HttpRequest):
     }
     return render(request, 'client_app/dashboard.html', context)
 
+def return_book_view(request):
+    client = LibraryClient()
+    # On récupère l'ID du livre si on vient du bouton "Return" du Dashboard
+    book_id = request.GET.get('book_id')
+    
+    if request.method == "POST":
+        member_id = request.POST.get('member_id')
+        book_id = request.POST.get('book_id')
+        
+        # Appel gRPC pour traiter le retour
+        response = client.return_book(member_id, book_id)
+        if response.success:
+            messages.success(request, response.message)
+            return redirect('dashboard')
+        else:
+            messages.error(request, response.message)
 
+    members = list(client.get_all_members())
+    books = list(client.search_books(query=""))
+    
+    return render(request, 'client_app/issue_book.html', {
+        'members': members,
+        'books': books,
+        'preselected_book_id': book_id,
+        'title': "Return a Book" # Optionnel : pour changer le titre
+    })
 def add_book(request: HttpRequest):
     staff_id = request.session.get('staff_id')
 
