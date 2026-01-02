@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Clients</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <style>
+        /* Styles spécifiques pour le tableau et les actions */
+        .action-link { 
+            cursor: pointer; 
+            margin-right: 8px; 
+            padding: 5px 8px; 
+            border-radius: 4px; 
+            text-decoration: none;
+            font-size: 0.9em;
+            display: inline-block;
+        }
+        .view-btn { background-color: #17a2b8; color: white; border: none; }
+        .edit-btn { background-color: #007bff; color: white; border: none; }
+        .delete-btn { background-color: #dc3545; color: white; border: none; }
+        .active-client { color: green; font-weight: bold; }
+        .inactive-client { color: red; }
+        .action-cell { display: flex; align-items: center; }
+        .action-cell form { margin: 0; }
+        .action-cell button { cursor: pointer; }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .badge-emprunts {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        .badge-no-emprunts {
+            background-color: #f5f5f5;
+            color: #757575;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container dashboard-container">
+        
+        <div class="header-controls" style="justify-content: space-between;">
+            <h1>👥 Liste des Clients</h1>
+            <a href="{% url 'dashboard' %}" class="nav-button">
+                <i aria-hidden="true">🏠</i> Tableau de Bord
+            </a>
+        </div>
+        
+        <a href="{% url 'create_client' %}" 
+        class="action-button-primary" 
+        style="background-color: #3f72af; cursor: pointer; display:inline-block; padding:10px 15px; border-radius:4px; color:white; text-decoration:none;">
+             ➕ Ajouter un Client
+        </a>
+
+        
+        <!-- Barre de recherche -->
+        <form method="get" style="margin-bottom: 20px;">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" 
+                       name="q" 
+                       placeholder="Rechercher par nom, prénom ou email..." 
+                       value="{{ query|default:'' }}"
+                       style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <button type="submit" class="action-button-primary" style="background-color: #3f72af;">
+                    🔍 Rechercher
+                </button>
+            </div>
+        </form>
+
+        <hr>
+        
+        {% if message %}
+            <div class="message-container success-message">{{ message }}</div>
+        {% elif error_message %}
+            <div class="message-container error-message">{{ error_message }}</div>
+        {% endif %}
+
+        {% if clients %}
+            <h3>Clients trouvés : {{ clients|length }}</h3>
+            
+            <table style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom Complet</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Emprunts Actifs</th>
+                        <th>Date d'Inscription</th>
+                        <th style="width: 200px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                    <tr>
+                        <td>{{ client.id }}</td>
+                        <td><strong>{{ client.nom }} {{ client.prenom }}</strong></td>
+                        <td>{{ client.email }}</td>
+                        <td>{{ client.telephone }}</td>
+                        <td>
+                            <span class="badge {% if client.emprunts_actifs > 0 %}badge-emprunts{% else %}badge-no-emprunts{% endif %}">
+                                {{ client.emprunts_actifs }} livre(s)
+                            </span>
+                        </td>
+                        <td>{{ client.date_inscription|date:"d/m/Y" }}</td>
+                        <td class="action-cell">
+                           
+                            
+                            <!-- Bouton Éditer -->
+                            <a href="{% url 'edit_client' client_id=client.id %}" 
+                             style="background-color: #007bff; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: bold; font-size: 14px; border: none; transition: background 0.3s;">
+                                 ✏️ Éditer
+                            </a>
+                            
+                            <!-- Bouton Supprimer -->
+                            <form method="POST" 
+                                  action="{% url 'delete_client_action' client_id=client.id %}" 
+                                  style="display: inline;" 
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer le client {{ client.nom }} {{ client.prenom }}? Cette action est irréversible.');">
+                                {% csrf_token %}
+                                <button type="submit" 
+                                        class="action-link delete-btn" 
+                                        title="Supprimer le client">
+                                    🗑️ Supprimer
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="text-align: center;">Aucun client trouvé.</p>
+        {% endif %}
+
+    </div>
+</body>
+</html>
