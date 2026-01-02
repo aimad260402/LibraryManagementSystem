@@ -227,6 +227,13 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
                 phone=m.phone,
                 date_joined=m.date_joined.isoformat() if m.date_joined else ""
             )
+    def GetMemberDetail(self, request, context):
+        try:
+            m = Member.objects.get(id=int(request.user_id))
+            return library_pb2.Member(id=str(m.id), full_name=m.full_name, email=m.email, phone=m.phone)
+        except Member.DoesNotExist:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            return library_pb2.Member()
     # ----------------------------------------------------
     # E. User Management: List
     # ----------------------------------------------------
