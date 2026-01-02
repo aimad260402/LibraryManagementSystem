@@ -146,6 +146,16 @@ class LibraryClient:
     # ----------------------------------------------------
     # E. User Management (List, Get, Delete) 🚀 NOUVEAU 🚀
     # ----------------------------------------------------
+    def return_book(self, member_id, book_id):
+        """Appelle le serveur pour enregistrer un retour."""
+        request = library_pb2.BorrowRequest(
+            member_id=str(member_id),
+            book_id=int(book_id)
+        )
+        try:
+            return self.stub.ReturnBook(request)
+        except grpc.RpcError as e:
+            return library_pb2.StatusResponse(success=False, message="Erreur de connexion au serveur.")
     def borrow_book(self, member_id, book_id):
         """Appelle le serveur pour enregistrer un emprunt."""
         request = library_pb2.BorrowRequest(
