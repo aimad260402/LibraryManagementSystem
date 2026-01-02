@@ -37,13 +37,20 @@ class LibraryUser(models.Model):
 
     def __str__(self):
         return f"Patron: {self.user.username} ({self.member_id})"
+
 class Loan(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    patron = models.ForeignKey(LibraryUser, on_delete=models.CASCADE)
+    # On remplace LibraryUser par Member
+    member = models.ForeignKey(Member, on_delete=models.CASCADE) 
     loan_date = models.DateField(auto_now_add=True)
     due_date = models.DateField()
     returned_date = models.DateField(null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        # Définit automatiquement une date de retour à +14 jours si non spécifiée
+        if not self.due_date:
+            self.due_date = timezone.now().date() + timedelta(days=14)
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"Loan of {self.book.title} to {self.patron.user.username}"
-    
+        return f"Loan: {self.book.title} -> {self.member.full_name}"
