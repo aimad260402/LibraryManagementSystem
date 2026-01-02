@@ -155,11 +155,11 @@ def delete_member_action(request, member_id):
         client.delete_member(member_id)
     return redirect('members_list')
 def edit_member(request, member_id):
-    """Redirige vers une page séparée pour l'édition."""
+    """Affiche le formulaire et sauvegarde les modifications."""
     client = LibraryClient()
     
     if request.method == 'POST':
-        # Sauvegarde simplifiée
+        # Appel gRPC direct (Simplifié : pas de mot de passe admin requis)
         client.update_member(
             m_id=member_id,
             name=request.POST.get('full_name'),
@@ -167,6 +167,10 @@ def edit_member(request, member_id):
             phone=request.POST.get('phone')
         )
         return redirect('members_list')
+    
+    # Récupération des données actuelles pour pré-remplir edit_member.html
+    member = client.get_member_detail(member_id)
+    return render(request, 'client_app/edit_member.html', {'member': member})
     
     # Récupération des détails pour la page edit_member.html
     member = client.get_member_detail(member_id)
