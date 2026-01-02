@@ -29,6 +29,7 @@ except Exception as e:
 # ----------------------------------------------------
 from django.contrib.auth.models import User
 from library_admin.models import Book 
+from library_admin.models import Loan
 from library_admin.models import Member 
 
 import library_pb2
