@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3>📖 Enregistrer un Emprunt</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label">Choisir un Membre</label>
+                    <select name="member_id" class="form-select" required>
+                        <option value="">-- Sélectionner le membre --</option>
+                        {% for member in members %}
+                        <option value="{{ member.id }}">{{ member.full_name }} (ID: {{ member.id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Choisir un Livre</label>
+                    <select name="book_id" class="form-select" required>
+                        <option value="">-- Sélectionner le livre --</option>
+                        {% for book in books %}
+                            {% if book.available_copies > 0 %}
+                            <option value="{{ book.id }}">{{ book.title }} - Stock: {{ book.available_copies }}</option>
+                            {% else %}
+                            <option value="{{ book.id }}" disabled>{{ book.title }} (Épuisé)</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success">Valider l'emprunt</button>
+                    <a href="{% url 'members_list' %}" class="btn btn-link">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
