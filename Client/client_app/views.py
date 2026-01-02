@@ -142,26 +142,27 @@ def add_book(request: HttpRequest):
 def issue_book_view(request):
     client = LibraryClient()
     
+    # Récupérer le book_id depuis l'URL (si présent)
+    preselected_book_id = request.GET.get('book_id')
+
     if request.method == "POST":
         member_id = request.POST.get('member_id')
         book_id = request.POST.get('book_id')
         
-        # Appel au serveur gRPC
         response = client.borrow_book(member_id, book_id)
-        
         if response.success:
             messages.success(request, response.message)
-            return redirect('members_list') # Redirige vers la liste des membres
+            return redirect('dashboard')
         else:
             messages.error(request, response.message)
 
-    # Récupération des données pour remplir les listes déroulantes du formulaire
-    all_members = list(client.get_all_members())
-    all_books = list(client.search_books(query="")) # Query vide pour tout avoir
+    members = list(client.get_all_members())
+    books = list(client.search_books(query=""))
     
     return render(request, 'client_app/issue_book.html', {
-        'members': all_members,
-        'books': all_books
+        'members': members,
+        'books': books,
+        'preselected_book_id': preselected_book_id  # On passe l'ID au template
     })
 def members_list(request):
     """Affiche la liste complète des membres (clients)."""
