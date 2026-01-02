@@ -119,7 +119,9 @@ class LibraryClient:
                 success=False, 
                 message=f"RPC Failed ({status_code.name}): {details}"
             )
-            
+    def create_member(self, full_name, email, phone):
+        req = library_pb2.Member(full_name=full_name, email=email, phone=phone)
+        return self.stub.CreateMember(req)        
     def get_all_members(self):
         return list(self.stub.GetAllMembers(library_pb2.SearchRequest(query="")))
     # D2. Creation Wrapper (Uses update_staff_profile for detournement)
