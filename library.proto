@@ -17,6 +17,15 @@ message LoginResponse {
 
 // --- 2. Inventory Messages ---
 
+
+
+message Member {
+    string id = 1;
+    string full_name = 2;
+    string email = 3;
+    string phone = 4;
+    string date_joined = 5;
+}
 message Book {
   int32 id = 1;
   string title = 2;
@@ -68,7 +77,11 @@ message UserIdRequest {
 }
 service LibraryService {
   rpc UserLogin (LoginRequest) returns (LoginResponse);
-
+    rpc CreateMember (Member) returns (StatusResponse);
+    rpc UpdateMember (Member) returns (StatusResponse);
+    rpc DeleteMember (UserIdRequest) returns (StatusResponse);
+    rpc GetAllMembers (SearchRequest) returns (stream Member);
+    rpc GetMemberDetail (UserIdRequest) returns (Member);
   rpc CreateBook (Book) returns (StatusResponse);
   rpc SearchBooks (SearchRequest) returns (stream Book);
   rpc GetBook (SearchRequest) returns (Book);
