@@ -96,7 +96,14 @@ def dashboard(request: HttpRequest):
         'logo_image': logo_image,
     }
     return render(request, 'client_app/dashboard.html', context)
-
+def delete_book(request, book_id):
+    client = LibraryClient()
+    response = client.stub.DeleteBook(library_pb2.SearchRequest(query=str(book_id)))
+    if response.success:
+        messages.success(request, response.message)
+    else:
+        messages.error(request, response.message)
+    return redirect('books_list')
 def books_list(request):
     client = LibraryClient()
     books = list(client.search_books(query=""))
