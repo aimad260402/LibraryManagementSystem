@@ -147,6 +147,12 @@ def members_list(request):
     client = LibraryClient()
     members = client.get_all_members() # Appel gRPC
     return render(request, 'client_app/members_list.html', {'members': members})
+def delete_member_action(request, member_id):
+    """Supprime et reste sur la page members.html."""
+    if request.method == 'POST':
+        client = LibraryClient()
+        client.delete_member(member_id)
+    return redirect('members_list')
 # 🚀 1. CREATE USER VIEW
 def create_user(request: HttpRequest):
     """
