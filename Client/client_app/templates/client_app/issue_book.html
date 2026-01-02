@@ -1,45 +1,96 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h3>📖 Enregistrer un Emprunt</h3>
-        </div>
-        <div class="card-body">
-            <form method="POST">
-                {% csrf_token %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-gradient bg-primary py-3 rounded-top-4">
+                    <h3 class="card-title mb-0 text-white d-flex align-items-center justify-content-center">
+                        <span class="me-2">📖</span> Enregistrer un Emprunt
+                    </h3>
+                </div>
                 
-                <div class="mb-3">
-                    <label class="form-label">Choisir un Membre</label>
-                    <select name="member_id" class="form-select" required>
-                        <option value="">-- Sélectionner le membre --</option>
-                        {% for member in members %}
-                        <option value="{{ member.id }}">{{ member.full_name }} (ID: {{ member.id }})</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" class="needs-validation">
+                        {% csrf_token %}
 
-                <div class="mb-3">
-                    <label class="form-label">Choisir un Livre</label>
-                    <select name="book_id" class="form-select" required>
-                        <option value="">-- Sélectionner le livre --</option>
-                        {% for book in books %}
-                            {% if book.available_copies > 0 %}
-                            <option value="{{ book.id }}">{{ book.title }} - Stock: {{ book.available_copies }}</option>
-                            {% else %}
-                            <option value="{{ book.id }}" disabled>{{ book.title }} (Épuisé)</option>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">
+                                <i class="fas fa-user-tag me-1"></i> Sélectionner le Membre
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-person"></i>👤</span>
+                                <select name="member_id" class="form-select form-select-lg border-start-0" required>
+                                    <option value="" selected disabled>Rechercher un membre...</option>
+                                    {% for member in members %}
+                                    <option value="{{ member.id }}">
+                                        {{ member.full_name }} (ID: {{ member.id }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-text">Cherchez par nom ou identifiant de membre.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">
+                                <i class="fas fa-book me-1"></i> Sélectionner le Livre
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-book"></i>📚</span>
+                                <select name="book_id" class="form-select form-select-lg border-start-0" required>
+                                    <option value="" disabled {% if not preselected_book_id %}selected{% endif %}>Choisir un livre...</option>
+                                    {% for book in books %}
+                                        <option value="{{ book.id }}" 
+                                            {% if preselected_book_id == book.id|stringformat:"i" %}selected{% endif %}
+                                            {% if book.available_copies <= 0 %}disabled{% endif %}>
+                                            {{ book.title }} 
+                                            {% if book.available_copies > 0 %}
+                                                (Stock: {{ book.available_copies }})
+                                            {% else %}
+                                                (❌ Épuisé)
+                                            {% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% if preselected_book_id %}
+                                <div class="form-text text-primary fw-medium">
+                                    ✨ Livre sélectionné depuis le catalogue.
+                                </div>
                             {% endif %}
-                        {% endfor %}
-                    </select>
-                </div>
+                        </div>
 
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-success">Valider l'emprunt</button>
-                    <a href="{% url 'members_list' %}" class="btn btn-link">Annuler</a>
+                        <hr class="my-4 text-muted">
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg rounded-pill shadow-sm">
+                                <i class="bi bi-check-circle me-1"></i> Confirmer l'emprunt
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm rounded-pill mt-2">
+                                Annuler et retourner au Dashboard
+                            </a>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
+            
+            <div class="text-center mt-4 text-muted small">
+                <p><i class="bi bi-info-circle me-1"></i> La date de retour est fixée par défaut à 14 jours.</p>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Améliorations CSS subtiles */
+    .dashboard-page .card { transition: transform 0.2s; }
+    .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+    .input-group-text { border-right: none; }
+    .bg-gradient { background: linear-gradient(45deg, #0d6efd, #004fb1); }
+</style>
 {% endblock %}
