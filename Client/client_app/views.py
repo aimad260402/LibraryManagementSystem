@@ -168,11 +168,17 @@ def edit_member(request, member_id):
         )
         return redirect('members_list')
     
-    # Récupération des données actuelles pour pré-remplir edit_member.html
-    member = client.get_member_detail(member_id)
-    return render(request, 'client_app/edit_member.html', {'member': member})
-    
-    # Récupération des détails pour la page edit_member.html
+def add_member(request):
+    """Ajoute un nouveau client autonome."""
+    if request.method == 'POST':
+        client = LibraryClient()
+        client.create_member(
+            full_name=request.POST.get('full_name'),
+            email=request.POST.get('email'),
+            phone=request.POST.get('phone')
+        )
+        return redirect('members_list')
+    return render(request, 'client_app/add_member.html')
     member = client.get_member_detail(member_id)
     return render(request, 'client_app/edit_member.html', {'member': member})
 # 🚀 1. CREATE USER VIEW
