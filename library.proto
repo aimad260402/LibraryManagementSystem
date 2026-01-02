@@ -80,7 +80,7 @@ service LibraryService {
   rpc CreateMember (Member) returns (StatusResponse);
   rpc UpdateMember (Member) returns (StatusResponse);
   rpc DeleteMember (UserIdRequest) returns (StatusResponse);
-  rpc GetAllMembers (SearchRequest) returns (stream Member);
+  //rpc GetAllMembers (SearchRequest) returns (stream Member);
   rpc GetMemberDetail (UserIdRequest) returns (Member); // <--- AJOUT DU POINT-VIRGULE ICI
   rpc CreateBook (Book) returns (StatusResponse);
   rpc SearchBooks (SearchRequest) returns (stream Book);
