@@ -86,7 +86,7 @@ service LibraryService {
   rpc SearchBooks (SearchRequest) returns (stream Book);
   rpc GetBook (SearchRequest) returns (Book);
   rpc UpdateBookAvailability (Book) returns (StatusResponse);
-
+  rpc DeleteBook (SearchRequest) returns (StatusResponse);
   rpc BorrowBook (BorrowRequest) returns (StatusResponse);
   rpc ReturnBook (BorrowRequest) returns (StatusResponse);
   rpc GetAllUsers (SearchRequest) returns (stream UserDetail); 

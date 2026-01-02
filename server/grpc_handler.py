@@ -415,15 +415,7 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
         except (Book.DoesNotExist, ValueError):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             return library_pb2.Book()
-    def UpdateBookAvailability(self, request, context):
-        """Met à jour manuellement le stock d'un livre."""
-        try:
-            book = Book.objects.get(id=request.id)
-            book.available_copies = request.available_copies
-            book.save()
-            return library_pb2.StatusResponse(success=True, message="Disponibilité mise à jour.")
-        except Book.DoesNotExist:
-            return library_pb2.StatusResponse(success=False, message="Livre introuvable.")
+    
 # ----------------------------------------------------
 # 4. Server Initialization (Serve function remains the same)
 # ----------------------------------------------------
