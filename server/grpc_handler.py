@@ -234,6 +234,16 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
         except Member.DoesNotExist:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             return library_pb2.Member()
+    def UpdateMember(self, request, context):
+        try:
+            member = Member.objects.get(id=int(request.id))
+            member.full_name = request.full_name
+            member.email = request.email
+            member.phone = request.phone
+            member.save()
+            return library_pb2.StatusResponse(success=True, message="Membre mis à jour.")
+        except Exception as e:
+            return library_pb2.StatusResponse(success=False, message=str(e))
     # ----------------------------------------------------
     # E. User Management: List
     # ----------------------------------------------------
