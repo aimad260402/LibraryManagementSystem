@@ -76,7 +76,6 @@ message UserIdRequest {
     string user_id = 1;
 }
 service LibraryService {
-  service LibraryService {
   rpc UserLogin (LoginRequest) returns (LoginResponse);
   rpc CreateMember (Member) returns (StatusResponse);
   rpc UpdateMember (Member) returns (StatusResponse);
