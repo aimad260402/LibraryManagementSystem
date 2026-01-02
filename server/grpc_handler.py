@@ -244,6 +244,13 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
             return library_pb2.StatusResponse(success=True, message="Membre mis à jour.")
         except Exception as e:
             return library_pb2.StatusResponse(success=False, message=str(e))
+    def DeleteMember(self, request, context):
+        try:
+            member = Member.objects.get(id=int(request.user_id))
+            member.delete() 
+            return library_pb2.StatusResponse(success=True, message="Membre supprimé définitivement.")
+        except Exception as e:
+            return library_pb2.StatusResponse(success=False, message=f"Erreur : {str(e)}")
     # ----------------------------------------------------
     # E. User Management: List
     # ----------------------------------------------------
