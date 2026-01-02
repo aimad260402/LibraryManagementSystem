@@ -149,7 +149,7 @@ def members_list(request):
     # Assurez-vous que le fichier s'appelle bien members.html dans vos templates
     return render(request, 'client_app/members.html', {'members': members})
 def delete_member_action(request, member_id):
-    """Supprime et reste sur la page members.html."""
+    """Action de suppression physique gRPC et redirection immédiate."""
     if request.method == 'POST':
         client = LibraryClient()
         client.delete_member(member_id)
