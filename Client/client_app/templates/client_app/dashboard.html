@@ -5,29 +5,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Librarian Dashboard | Inventory</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=4">
+    
     <style>
-        .book-cover {
-            width: 40px;
-            height: auto;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .available-stock { color: #28a745; font-weight: bold; }
-        .unavailable-stock { color: #dc3545; font-weight: bold; }
+        body, html {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; 
+}
+
+/* Définit le conteneur principal sur toute la hauteur */
+.dashboard-layout {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Menu gauche : Hauteur fixe et scroll interne si nécessaire */
+.dashboard-sidebar {
+    height: 100vh;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+
+/* Zone centrale : Active le scroll indépendant */
+.dashboard-main {
+    flex-grow: 1;
+    height: 100vh;
+    overflow-y: auto; 
+    position: relative;
+}
+
+/* Topbar : Reste collée en haut lors du défilement du main */
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+        /* Modern Table & UI Enhancements */
+        .book-cover { width: 45px; height: 60px; object-fit: cover; border-radius: 6px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .available-stock { color: #10b981; font-weight: 700; }
+        .unavailable-stock { color: #ef4444; font-weight: 700; }
         
-        /* Badges styles */
+        /* Status Badges */
         .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-        .bg-success-light { background-color: #d4edda; color: #155724; }
-        .bg-danger-light { background-color: #f8d7da; color: #721c24; }
-        .bg-warning-light { background-color: #fff3cd; color: #856404; }
+        .bg-success-light { background: #ecfdf5; color: #065f46; border: 1px solid #10b981; }
+        .bg-danger-light { background: #fef2f2; color: #991b1b; border: 1px solid #ef4444; }
+        .bg-warning-light { background: #fffbeb; color: #92400e; border: 1px solid #f59e0b; }
+
+        /* Icon Styling */
+        .sidebar-link i { margin-right: 12px; font-size: 1.2rem; vertical-align: middle; transition: 0.3s; }
+        .sidebar-link:hover i { transform: translateX(3px); color: #3f72af; }
+        
+        /* Responsive Table Wrapper */
+        .table-wrapper { overflow-x: auto; border-radius: 12px; background: white; padding: 10px; }
+
+        /* Profile Sidebar (Right) Styling */
+        .profile-panel-body { width: 320px; padding: 0; background: #fff; box-shadow: -10px 0 30px rgba(0,0,0,0.05); }
+        .profile-panel-header { padding: 40px 24px; background: linear-gradient(135deg, #112d4e 0%, #3f72af 100%); color: white; position: relative; }
+        .profile-panel-close { color: white; top: 15px; right: 15px; font-size: 1.5rem; opacity: 0.7; }
+        .profile-panel-avatar { width: 70px; height: 70px; font-size: 2rem; background: rgba(255,255,255,0.2); border: 2px solid white; margin-bottom: 15px; }
+        .profile-panel-item { padding: 18px 24px; border-bottom: 1px solid #f1f5f9; transition: 0.2s; }
+        .profile-panel-item:hover { background: #f8fafc; color: #3f72af; }
     </style>
 </head>
 <body class="dashboard-page">
@@ -36,24 +85,24 @@
     <div class="profile-panel-overlay" id="profileOverlay"></div>
     <aside class="profile-panel-body">
         <div class="profile-panel-header">
-            <button type="button" class="profile-panel-close" id="profileClose">×</button>
+            <button type="button" class="profile-panel-close" id="profileClose"><i class="ri-close-line"></i></button>
             <div class="profile-panel-user">
                 <div class="profile-panel-avatar">👤</div>
                 <div>
                     <p class="profile-panel-name">{{ username|default:"Librarian" }}</p>
-                    <p class="profile-panel-handle">@{{ username|default:"librarian" }}</p>
+                    <p class="profile-panel-handle" style="opacity: 0.8;">@{{ username|lower|default:"librarian" }}</p>
                 </div>
             </div>
-            <a href="{% url 'staff_profile' %}" class="profile-panel-edit-btn">Edit Profile</a>
+            <a href="{% url 'staff_profile' %}" class="profile-panel-edit-btn" style="color: white; border-color: white;">Edit Profile</a>
         </div>
         <nav class="profile-panel-menu">
             <button type="button" class="profile-panel-item" onclick="window.location.href='{% url 'staff_profile' %}'">
-                <span>Profile</span>
-                <span class="profile-panel-arrow">›</span>
+                <i class="ri-user-settings-line me-2"></i> <span>My Settings</span>
+                <span class="profile-panel-arrow"><i class="ri-arrow-right-s-line"></i></span>
             </button>
             <button type="button" class="profile-panel-item profile-panel-item-danger" onclick="window.location.href='{% url 'staff_logout' %}'">
-                <span>Log out</span>
-                <span class="profile-panel-arrow">›</span>
+                <i class="ri-logout-box-r-line me-2"></i> <span>Log out</span>
+                <span class="profile-panel-arrow"><i class="ri-arrow-right-s-line"></i></span>
             </button>
         </nav>
     </aside>
@@ -65,130 +114,170 @@
             <img src="{{ MEDIA_URL }}{{ logo_image }}" alt="Logo" class="logo-img">
         </div>
         <nav class="sidebar-nav">
-            <p class="sidebar-section-label">LIBRARY</p>
-            <a href="{% url 'dashboard' %}" class="sidebar-link active">Dashboard</a>
-            <a href="{% url 'add_book' %}" class="sidebar-link">Add New Book</a>
-            <a href="{% url 'books_list' %}" class="sidebar-link">Manage Books </a>
-            <a href="{% url 'issue_book' %}" class="sidebar-link">🚀 Issue a Book</a>
-            <a href="{% url 'users_list' %}" class="sidebar-link">📖 Users</a>
-            <a href="{% url 'members_list' %}" class="sidebar-link">📖 Members</a>
-            <p class="sidebar-section-label">ACCOUNT</p>
-            <a href="{% url 'staff_profile' %}" class="sidebar-link">👤 My Profile</a>
+            <p class="sidebar-section-label">MAIN NAVIGATION</p>
+            <a href="{% url 'dashboard' %}" class="sidebar-link active">
+                <i class="ri-dashboard-3-line"></i> Dashboard
+            </a>
+            <a href="{% url 'add_book' %}" class="sidebar-link">
+                <i class="ri-add-circle-line"></i> Add New Book
+            </a>
+            <a href="{% url 'books_list' %}" class="sidebar-link">
+                <i class="ri-book-read-line"></i> Manage Books
+            </a>
+            <a href="{% url 'issue_book' %}" class="sidebar-link">
+                <i class="ri-arrow-left-right-line"></i> Issue a Book
+            </a>
+            
+            <p class="sidebar-section-label">DIRECTORY</p>
+            <a href="{% url 'users_list' %}" class="sidebar-link">
+                <i class="ri-user-star-line"></i> Staff Users
+            </a>
+            <a href="{% url 'members_list' %}" class="sidebar-link">
+                <i class="ri-group-line"></i> Library Members
+            </a>
+
+            <p class="sidebar-section-label">SYSTEM</p>
+            <a href="{% url 'staff_profile' %}" class="sidebar-link">
+                <i class="ri-settings-4-line"></i> Profile Settings
+            </a>
         </nav>
     </aside>
 
     <main class="dashboard-main">
         <div class="dashboard-main-inner">
             <header class="topbar">
-                <div class="topbar-search"></div>
+                <div class="topbar-search">
+                    <span class="text-muted fw-light">System / <strong>Overview</strong></span>
+                </div>
                 <div class="topbar-user">
-                    <span class="topbar-username">{{ username|default:"Librarian" }}</span>
-                    <button type="button" class="topbar-avatar-btn" id="profileToggle">👤</button>
+                    <div class="text-end me-3 d-none d-md-block">
+                        <span class="topbar-username d-block">{{ username|default:"Librarian" }}</span>
+                        <small class="text-muted fs-xs">Active Session</small>
+                    </div>
+                    <button type="button" class="topbar-avatar-btn" id="profileToggle">
+                        <i class="ri-user-line"></i>
+                    </button>
                 </div>
             </header>
 
             <section class="hero-banner">
                 <div class="hero-text-block">
                     <p class="hero-eyebrow">Inventory Management</p>
-                    <h1 class="hero-title">👋 Bonjour, {{ username|default:"Librarian" }} !</h1>
-                    <p class="hero-subtitle">Manage your collection and track active loans in real-time.</p>
+                    <h1 class="hero-title">Welcome back, {{ username }}!</h1>
+                    <p class="hero-subtitle">You have <strong>{{ total_borrowed }}</strong> books currently out on loan.</p>
                 </div>
             </section>
 
             <section class="summary-row">
-                <article class="summary-card">
-                    <h3>Available Copies</h3>
-                    <p class="summary-number" style="color: #28a745;">{{ total_available|default:"0" }}</p>
-                    <p class="summary-caption">Copies ready on shelves.</p>
+                <article class="summary-card shadow-sm border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3>Available</h3>
+                            <p class="summary-number" style="color: #10b981;">{{ total_available|default:"0" }}</p>
+                        </div>
+                        <i class="ri-bookmark-3-line fs-1 opacity-25"></i>
+                    </div>
                 </article>
-                <article class="summary-card">
-                    <h3>Borrowed Books</h3>
-                    <p class="summary-number" style="color: #dc3545;">{{ total_borrowed|default:"0" }}</p>
-                    <p class="summary-caption">Books currently with members.</p>
+                <article class="summary-card shadow-sm border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3>Borrowed</h3>
+                            <p class="summary-number" style="color: #ef4444;">{{ total_borrowed|default:"0" }}</p>
+                        </div>
+                        <i class="ri-arrow-left-right-fill fs-1 opacity-25"></i>
+                    </div>
                 </article>
-                <article class="summary-card">
-                    <h3>Unique Titles</h3>
-                    <p class="summary-number">{{ book_results|length|default:"0" }}</p>
-                    <p class="summary-caption">Distinct titles in catalog.</p>
+                <article class="summary-card shadow-sm border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3>Total Titles</h3>
+                            <p class="summary-number" style="color: #3f72af;">{{ book_results|length|default:"0" }}</p>
+                        </div>
+                        <i class="ri-book-open-line fs-1 opacity-25"></i>
+                    </div>
                 </article>
             </section>
 
             <section class="dashboard-section">
-                <div class="section-header">
-                    <h2 class="section-title">Search Inventory</h2>
+                <div class="section-header d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="section-title"><i class="ri-search-eye-line me-2"></i>Quick Inventory Search</h2>
                 </div>
-                <form method="get" action="{% url 'dashboard' %}" class="search-area">
-                    <input type="text" name="q" placeholder="Search Title, Author, or ISBN..." value="{{ query|default:'' }}">
-                    <button type="submit" class="login-btn search-btn">🔍 Search</button>
+                <form method="get" action="{% url 'dashboard' %}" class="search-area shadow-sm rounded-4">
+                    <i class="ri-search-2-line ms-3 text-muted"></i>
+                    <input type="text" name="q" placeholder="Search Title, Author, or ISBN..." value="{{ query|default:'' }}" class="border-0">
+                    <button type="submit" class="login-btn search-btn px-4">Search</button>
                 </form>
             </section>
 
             <section class="dashboard-section">
                 {% if book_results %}
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Cover</th>
-                                    <th>Title</th>
-                                    <th>Author</th>
-                                    <th>Status</th>
-                                    <th>Stock</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for book in book_results %}
-                                <tr>
-                                    <td>{{ book.id }}</td>
-                                    <td>
-                                        {% if book.image_url %}
-                                            <img src="{{ MEDIA_URL }}{{ book.image_url }}" class="book-cover">
-                                        {% else %}
-                                            <span style="font-size: 1.2rem;">📖</span>
-                                        {% endif %}
-                                    </td>
-                                    <td><strong>{{ book.title }}</strong></td>
-                                    <td>{{ book.author }}</td>
-                                    <td>
-                                        {% if book.available_copies == 0 %}
-                                            <span class="status-badge bg-danger-light text-danger">Borrowed</span>
-                                        {% elif book.available_copies < book.total_copies %}
-                                            <span class="status-badge bg-warning-light text-warning">Partial</span>
-                                        {% else %}
-                                            <span class="status-badge bg-success-light text-success">Available</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span class="{% if book.available_copies > 0 %}available-stock{% else %}unavailable-stock{% endif %}">
-                                            {{ book.available_copies }} / {{ book.total_copies }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div style="display: flex; gap: 10px;">
-                                            {% if book.available_copies > 0 %}
-                                                <a href="{% url 'issue_book' %}?book_id={{ book.id }}" 
-                                                   class="action-link" 
-                                                   style="color: #0d6efd; text-decoration: none; font-weight: bold;">
-                                                    📥 Borrow
-                                                </a>
+                <div class="table-wrapper shadow-sm border">
+                    <table class="table align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="border-0">Book Details</th>
+                                <th class="border-0">Author</th>
+                                <th class="border-0">Status</th>
+                                <th class="border-0">Stock</th>
+                                <th class="border-0 text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in book_results %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            {% if book.image_url %}
+                                                <img src="{{ MEDIA_URL }}{{ book.image_url }}" class="book-cover">
                                             {% else %}
-                                                <a href="{% url 'issue_book' %}?book_id={{ book.id }}" 
-                                                   class="action-link" 
-                                                   style="color: #dc3545; text-decoration: none; font-weight: bold;">
-                                                    📤 Return
-                                                </a>
+                                                <div class="book-cover d-flex align-items-center justify-content-center bg-light text-muted">
+                                                    <i class="ri-book-line fs-4"></i>
+                                                </div>
                                             {% endif %}
                                         </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">{{ book.title }}</div>
+                                            <small class="text-muted">ID: #{{ book.id }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ book.author }}</td>
+                                <td>
+                                    {% if book.available_copies == 0 %}
+                                        <span class="status-badge bg-danger-light">Out of Stock</span>
+                                    {% elif book.available_copies < book.total_copies %}
+                                        <span class="status-badge bg-warning-light">Partial</span>
+                                    {% else %}
+                                        <span class="status-badge bg-success-light">Available</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="{% if book.available_copies > 0 %}available-stock{% else %}unavailable-stock{% endif %}">
+                                        {{ book.available_copies }} <span class="text-muted fw-normal">/ {{ book.total_copies }}</span>
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    {% if book.available_copies > 0 %}
+                                        <a href="{% url 'issue_book' %}?book_id={{ book.id }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">
+                                            <i class="ri-download-line"></i> Borrow
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'issue_book' %}?book_id={{ book.id }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">
+                                            <i class="ri-upload-line"></i> Return
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
                 {% else %}
-                    <p class="no-results">No books found for "{{ query }}".</p>
+                <div class="text-center py-5 bg-white rounded-4 shadow-sm border">
+                    <i class="ri-search-line fs-1 text-muted opacity-25"></i>
+                    <p class="text-muted mt-2">No results matching your criteria.</p>
+                </div>
                 {% endif %}
             </section>
         </div>
@@ -203,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const overlay = document.getElementById('profileOverlay');
 
     if (panel && toggleBtn) {
-        toggleBtn.addEventListener('click', () => panel.classList.toggle('open'));
+        toggleBtn.addEventListener('click', () => panel.classList.add('open'));
         [closeBtn, overlay].forEach(el => {
             if (el) el.addEventListener('click', () => panel.classList.remove('open'));
         });
