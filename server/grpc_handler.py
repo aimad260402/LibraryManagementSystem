@@ -249,3 +249,22 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
             response.success = False
             response.message = str(e)
         return response
+    
+    # ----------------------------------------------------
+# 4. Server Initialization
+# ----------------------------------------------------
+
+def serve():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    servicer_instance = LibraryServicer()
+    library_pb2_grpc.add_LibraryServiceServicer_to_server(servicer_instance, server)
+    server.add_insecure_port('[::]:50051') 
+    server.start()
+    print("✅ SERVEUR gRPC DÉMARRÉ SUR LE PORT 50051")
+    server.wait_for_termination()
+if __name__ == '__main__':
+    try:
+        serve()
+    except KeyboardInterrupt:
+        print("\n🛑 Arrêt du serveur...")
+        sys.exit(0)
