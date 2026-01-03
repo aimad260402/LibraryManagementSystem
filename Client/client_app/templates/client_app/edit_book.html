@@ -11,7 +11,7 @@
 <style>
     /* --- SECTION HEADER / HERO --- */
     .hero-banner-edit {
-        background: #3f72af; /* Violet vif signature */
+        background: #3f72af; 
         border-radius: 25px;
         color: white;
         padding: 40px 45px;
@@ -24,7 +24,6 @@
         align-items: center;
     }
 
-    /* Décoration d'arrière-plan */
     .hero-banner-edit::after {
         content: "";
         position: absolute;
@@ -51,17 +50,6 @@
         margin: 0;
     }
 
-    .book-id-badge {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(5px);
-        color: white;
-        padding: 6px 16px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 0.8rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
     /* --- BOUTON RETOUR PRO --- */
     .btn-back-list-pro {
         background: rgba(255, 255, 255, 0.1);
@@ -82,7 +70,7 @@
 
     .btn-back-list-pro:hover {
         background: white;
-        color: #9d3ffc !important;
+        color: #3f72af !important;
         transform: translateX(-5px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
@@ -97,7 +85,6 @@
         margin: 0 20px 40px 20px;
     }
 
-    /* --- INPUT BOX DESIGN --- */
     .input-box {
         background: #ffffff;
         border: 1px solid #d1d5db;
@@ -132,6 +119,16 @@
         background: transparent;
     }
 
+    /* --- PREVIEW IMAGE STYLE --- */
+    .current-cover-preview {
+        width: 100px;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border: 2px solid #f8fafc;
+    }
+
     /* --- BOUTONS ACTIONS --- */
     .btn-save-black {
         background: #111827;
@@ -163,7 +160,7 @@
         <div class="d-flex align-items-center gap-3">
             <h1 class="hero-title"> Edit : {{ book.title }}</h1>
         </div>
-   </div>
+    </div>
     
     <a href="{% url 'books_list' %}" class="btn-back-list-pro">
         <i class="ri-arrow-left-s-line"></i>
@@ -183,8 +180,10 @@
                 {% endfor %}
             {% endif %}
 
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
+                
+                <input type="hidden" name="current_image_url" value="{{ book.image_url }}">
 
                 <div class="row text-start">
                     <div class="col-12 mb-4 border-bottom pb-2">
@@ -223,6 +222,29 @@
                         <div class="input-box">
                             <label style="color: #10b981;">Disponibles en rayon *</label>
                             <input type="number" name="available_copies" value="{{ book.available_copies }}" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-4 mb-4 border-bottom pb-2">
+                        <h6 class="fw-bold text-dark text-uppercase" style="letter-spacing: 1px; font-size: 0.8rem;">Couverture du livre</h6>
+                    </div>
+
+                    <div class="col-md-3 mb-3 text-center">
+                        <p class="small text-muted mb-2 text-uppercase fw-bold" style="font-size: 0.6rem;">Aperçu actuel</p>
+                        {% if book.image_url %}
+                            <img src="/media/{{ book.image_url }}" class="current-cover-preview">
+                        {% else %}
+                            <div class="current-cover-preview bg-light d-flex align-items-center justify-content-center text-muted border">
+                                <i class="ri-image-line fs-1"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-9 mb-3 d-flex align-items-center">
+                        <div class="input-box w-100">
+                            <label>Remplacer l'image de couverture</label>
+                            <input type="file" name="image" accept="image/*" style="padding-top: 5px; cursor: pointer;">
+                            <p class="mb-0 mt-2 small text-muted">Format JPG/PNG recommandé (Max 2Mo).</p>
                         </div>
                     </div>
 

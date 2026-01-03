@@ -83,6 +83,8 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
             book.total_copies = request.total_copies
             book.available_copies = request.available_copies
             book.save()
+            if request.image_url:
+                book.image_url = request.image_url
             return library_pb2.StatusResponse(success=True, message="Livre mis à jour.")
         except Book.DoesNotExist:
             return library_pb2.StatusResponse(success=False, message="Livre introuvable.")

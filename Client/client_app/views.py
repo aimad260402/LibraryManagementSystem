@@ -94,22 +94,69 @@ def dashboard(request: HttpRequest):
       
     }
     return render(request, 'client_app/dashboard.html', context)
+# def edit_book_view(request, book_id):
+#     client = LibraryClient()
+    
+#     # --- ACTION : Enregistrement après modification ---
+#     if request.method == "POST":
+#         # On construit l'objet Book avec les nouvelles valeurs du formulaire
+#         updated_book = library_pb2.Book(
+#             id=int(book_id),
+#             title=request.POST.get('title'),
+#             author=request.POST.get('author'),
+#             isbn=request.POST.get('isbn'),
+#             total_copies=int(request.POST.get('total_copies')),
+#             available_copies=int(request.POST.get('available_copies'))
+#         )
+        
+#         # Appel gRPC au serveur
+#         response = client.stub.UpdateBookAvailability(updated_book)
+        
+#         if response.success:
+#             messages.success(request, f"L'ouvrage '{updated_book.title}' a été mis à jour.")
+#             return redirect('books_list')
+#         else:
+#             messages.error(request, f"Échec de la mise à jour : {response.message}")
+
+#     # --- AFFICHAGE : Récupération des données actuelles ---
+#     try:
+#         # On utilise SearchRequest (champ query) pour demander l'ID au serveur
+#         book_to_edit = client.stub.GetBook(library_pb2.SearchRequest(query=str(book_id)))
+#     except Exception as e:
+#         messages.error(request, "Erreur lors de la récupération du livre.")
+#         return redirect('books_list')
+
+#     return render(request, 'client_app/edit_book.html', {
+#         'book': book_to_edit,
+#         'username': request.session.get('username'),
+#         'logo_image': "book_covers/ismac_logo.png"
+#     })
 def edit_book_view(request, book_id):
     client = LibraryClient()
     
-    # --- ACTION : Enregistrement après modification ---
     if request.method == "POST":
-        # On construit l'objet Book avec les nouvelles valeurs du formulaire
+        # Récupération de l'image actuelle
+        current_image_url = request.POST.get('current_image_url')
+        
+        # Vérification si une nouvelle image est téléchargée
+        image_file = request.FILES.get('image')
+        if image_file:
+            fs = FileSystemStorage()
+            new_image_path = fs.save(f'book_covers/{image_file.name}', image_file)
+        else:
+            new_image_path = current_image_url
+
+        # Construction de l'objet Book avec le champ image_url
         updated_book = library_pb2.Book(
             id=int(book_id),
             title=request.POST.get('title'),
             author=request.POST.get('author'),
             isbn=request.POST.get('isbn'),
             total_copies=int(request.POST.get('total_copies')),
-            available_copies=int(request.POST.get('available_copies'))
+            available_copies=int(request.POST.get('available_copies')),
+            image_url=new_image_path  # Ajout de l'image
         )
         
-        # Appel gRPC au serveur
         response = client.stub.UpdateBookAvailability(updated_book)
         
         if response.success:
@@ -118,19 +165,14 @@ def edit_book_view(request, book_id):
         else:
             messages.error(request, f"Échec de la mise à jour : {response.message}")
 
-    # --- AFFICHAGE : Récupération des données actuelles ---
+    # Récupération des données pour l'affichage
     try:
-        # On utilise SearchRequest (champ query) pour demander l'ID au serveur
         book_to_edit = client.stub.GetBook(library_pb2.SearchRequest(query=str(book_id)))
-    except Exception as e:
+    except Exception:
         messages.error(request, "Erreur lors de la récupération du livre.")
         return redirect('books_list')
 
-    return render(request, 'client_app/edit_book.html', {
-        'book': book_to_edit,
-        'username': request.session.get('username'),
-        'logo_image': "book_covers/ismac_logo.png"
-    })
+    return render(request, 'client_app/edit_book.html', {'book': book_to_edit})
 def delete_book(request, book_id):
     client = LibraryClient()
     
@@ -183,62 +225,101 @@ def return_book_view(request):
         'preselected_book_id': book_id,
         'title': "Return a Book" # Optionnel : pour changer le titre
     })
+# def add_book(request: HttpRequest):
+#     staff_id = request.session.get('staff_id')
+
+#     if not staff_id:
+#         request.session['login_message'] = "Authentication required."
+#         return redirect('staff_login')
+
+#     # 🔥 Background image path (stored in MEDIA folder)
+#     bg_image = "/media/book_covers/add_book_background.jpg"   # <-- CHANGE extension if needed
+
+#     context = {
+#         'username': request.session.get('username'),
+#         'title': "Add New Book",
+#         'bg_image': bg_image,  # 👈 Send to HTML
+#     }
+
+#     if request.method == 'POST':
+#         title = request.POST.get('title')
+#         author = request.POST.get('author')
+#         isbn = request.POST.get('isbn')
+
+#         # Validate Quantity
+#         try:
+#             total_copies = int(request.POST.get('total_copies', 1))
+#             if total_copies <= 0:
+#                 raise ValueError
+#         except ValueError:
+#             context['error_message'] = "Total Copies must be a positive number."
+#             return render(request, 'client_app/add_book.html', context)
+
+#         # Handle uploaded book cover
+#         image_file = request.FILES.get('image')
+#         image_path_string = None
+
+#         if image_file:
+#             fs = FileSystemStorage()
+#             image_path_string = fs.save(f'book_covers/{image_file.name}', image_file)
+
+#         # gRPC Client Call
+#         client = LibraryClient()
+#         response = client.create_book(
+#             title=title,
+#             author=author,
+#             isbn=isbn,
+#             total_copies=total_copies,
+#             image_path=image_path_string
+#         )
+
+#         # Response Handling
+#         context['success'] = response.success
+#         context['message'] = response.message
+
+#         if response.success:
+#             context['message'] += f" (New ID: {response.entity_id})"
+
+#     return render(request, 'client_app/add_book.html', context)
 def add_book(request: HttpRequest):
     staff_id = request.session.get('staff_id')
-
     if not staff_id:
         request.session['login_message'] = "Authentication required."
         return redirect('staff_login')
-
-    # 🔥 Background image path (stored in MEDIA folder)
-    bg_image = "/media/book_covers/add_book_background.jpg"   # <-- CHANGE extension if needed
-
-    context = {
-        'username': request.session.get('username'),
-        'title': "Add New Book",
-        'bg_image': bg_image,  # 👈 Send to HTML
-    }
 
     if request.method == 'POST':
         title = request.POST.get('title')
         author = request.POST.get('author')
         isbn = request.POST.get('isbn')
 
-        # Validate Quantity
         try:
             total_copies = int(request.POST.get('total_copies', 1))
-            if total_copies <= 0:
-                raise ValueError
+            if total_copies <= 0: raise ValueError
         except ValueError:
-            context['error_message'] = "Total Copies must be a positive number."
-            return render(request, 'client_app/add_book.html', context)
+            messages.error(request, "Total Copies must be a positive number.")
+            return render(request, 'client_app/add_book.html', {'title': "Add New Book"})
 
-        # Handle uploaded book cover
+        # Gestion de l'image
         image_file = request.FILES.get('image')
         image_path_string = None
-
         if image_file:
             fs = FileSystemStorage()
             image_path_string = fs.save(f'book_covers/{image_file.name}', image_file)
 
-        # gRPC Client Call
         client = LibraryClient()
         response = client.create_book(
-            title=title,
-            author=author,
-            isbn=isbn,
-            total_copies=total_copies,
-            image_path=image_path_string
+            title=title, author=author, isbn=isbn,
+            total_copies=total_copies, image_path=image_path_string
         )
 
-        # Response Handling
-        context['success'] = response.success
-        context['message'] = response.message
-
         if response.success:
-            context['message'] += f" (New ID: {response.entity_id})"
+            # Redirection avec message de succès
+            messages.success(request, f"Book added successfully! (ID: {response.entity_id})")
+            return redirect('books_list')
+        else:
+            messages.error(request, f"Error: {response.message}")
 
-    return render(request, 'client_app/add_book.html', context)
+    return render(request, 'client_app/add_book.html', {'title': "Add New Book"})
 
 # --- Section Membres dans client_app/views.py ---
 def issue_book_view(request):
