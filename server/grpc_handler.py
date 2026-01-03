@@ -1,3 +1,15 @@
+import grpc
+from concurrent import futures
+import os
+import django
+import sys
+from django.contrib.auth import authenticate 
+from django.contrib.auth.hashers import check_password, make_password
+from django.db.models import Q 
+from django.db.utils import OperationalError
+from django.db import IntegrityError
+from django.db import transaction
+
 # ----------------------------------------------------
 # 1. ROBUST DJANGO ENVIRONMENT SETUP 
 # ----------------------------------------------------
