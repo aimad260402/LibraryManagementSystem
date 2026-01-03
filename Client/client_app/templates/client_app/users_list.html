@@ -1,222 +1,250 @@
+{% extends "layout.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users Management | Librarian Dashboard</title>
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=3">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .sidebar-link.active { background: rgba(255,255,255,0.1); font-weight: bold; }
-        .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-        .status-active { background-color: #d4edda; color: #155724; }
-        .status-inactive { background-color: #f8d7da; color: #721c24; }
-        .role-badge { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        a { text-decoration: none; }
-    </style>
-</head>
-<body class="dashboard-page">
 
-<div class="profile-panel" id="profilePanel">
-    <div class="profile-panel-overlay" id="profileOverlay"></div>
-    <aside class="profile-panel-body">
-        <div class="profile-panel-header">
-            <button type="button" class="profile-panel-close" id="profileClose">×</button>
-            <div class="profile-panel-user">
-                <div class="profile-panel-avatar">👤</div>
-                <div>
-                    <p class="profile-panel-name">{{ username|default:"Librarian" }}</p>
-                    <p class="profile-panel-handle">@{{ username|default:"librarian" }}</p>
-                </div>
-            </div>
-            <a href="{% url 'staff_profile' %}" class="profile-panel-edit-btn">Edit Profile</a>
-        </div>
-        <nav class="profile-panel-menu">
-            <button type="button" class="profile-panel-item" onclick="window.location.href='{% url 'staff_profile' %}'">
-                <span>Profile</span><span class="profile-panel-arrow">›</span>
-            </button>
-            <button type="button" class="profile-panel-item profile-panel-item-danger" onclick="window.location.href='{% url 'staff_logout' %}'">
-                <span>Log out</span><span class="profile-panel-arrow">›</span>
-            </button>
-        </nav>
-    </aside>
-</div>
+{% block title %}Gestion des Utilisateurs | Librarian Dashboard{% endblock %}
 
-<div class="dashboard-layout">
-    <aside class="dashboard-sidebar">
-        <div class="sidebar-logo">
-            <img src="{{ MEDIA_URL }}{{ logo_image }}" alt="Logo" class="logo-img">
-        </div>
-        <nav class="sidebar-nav">
-            <p class="sidebar-section-label">LIBRARY</p>
-            <a href="{% url 'dashboard' %}" class="sidebar-link">Dashboard</a>
-            <a href="{% url 'add_book' %}" class="sidebar-link">Add New Book</a>
-            <a href="{% url 'books_list' %}" class="sidebar-link">📚 Manage Books</a>
-            <a href="{% url 'users_list' %}" class="sidebar-link active">📖 Users</a>
-            <a href="{% url 'members_list' %}" class="sidebar-link">📖 Members</a>
-            <p class="sidebar-section-label">ACCOUNT</p>
-            <a href="{% url 'staff_profile' %}" class="sidebar-link">👤 My Profile</a>
-        </nav>
-    </aside>
+{% block nav_users %}active opacity-100{% endblock %}
+{% block breadcrumb_parent %}User Management{% endblock %}
+{% block breadcrumb_active %}Liste des Utilisateurs{% endblock %}
 
-    <main class="dashboard-main">
-        <div class="dashboard-main-inner">
-            <header class="topbar">
-                <div class="topbar-search">
-                    <span class="text-muted fw-light">Administration / <strong>Staff List</strong></span>
-                </div>
-                <div class="topbar-user">
-                    <span class="topbar-username">{{ username|default:"Librarian" }}</span>
-                    <button type="button" class="topbar-avatar-btn" id="profileToggle">👤</button>
-                </div>
-            </header>
+{% block content %}
+<style>
+    /* --- SECTION HEADER / HERO --- */
+    .hero-banner-users {
+        background: #9d3ffc; /* Violet vif identique à l'image */
+        border-radius: 25px;
+        color: white;
+        padding: 35px 45px;
+        margin: 20px;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(157, 63, 252, 0.2);
+    }
 
-            <section class="hero-banner">
-                <div class="hero-text-block">
-                    <p class="hero-eyebrow">User Management</p>
-                    <h1 class="hero-title">👥 Liste des Utilisateurs</h1>
-                    <p class="hero-subtitle">Gérez les accès et les permissions des membres de l'équipe.</p>
-                </div>
-                <div class="hero-actions">
-                     <a href="{% url 'create_user' %}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
-                        + Créer un Utilisateur
-                    </a>
-                </div>
-            </section>
+    .hero-eyebrow {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        opacity: 0.8;
+        margin-bottom: 5px;
+    }
 
-            {% if message or messages %}
-                <div class="px-4 mt-3">
-                    <div class="alert alert-success shadow-sm">{{ message }}</div>
-                </div>
-            {% endif %}
+    .hero-title {
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 2.2rem;
+    }
 
-            <section class="dashboard-section p-4">
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-4 py-3 text-uppercase fs-xs fw-bold text-muted">Identité Utilisateur</th>
-                        <th class="py-3 text-uppercase fs-xs fw-bold text-muted">Contact Email</th>
-                        <th class="py-3 text-uppercase fs-xs fw-bold text-muted">Rôle Système</th>
-                        <th class="py-3 text-uppercase fs-xs fw-bold text-muted">État du Compte</th>
-                        <th class="pe-4 py-3 text-uppercase fs-xs fw-bold text-muted text-end">Actions de Gestion</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in user_results %}
-                    <tr>
-                        <td class="ps-4">
-                            <div class="d-flex align-items-center">
-                                <div class="avatar-circle me-3 d-flex align-items-center justify-content-center bg-primary text-white fw-bold shadow-sm" 
-                                     style="width: 40px; height: 40px; border-radius: 10px; font-size: 1.1rem;">
-                                    {{ user.username|slice:":1"|upper }}
-                                </div>
-                                <div>
-                                    <div class="fw-bold text-dark fs-6">{{ user.username }}</div>
-                                    <small class="text-muted">Inscrit le : {{ user.date_joined|date:"d M Y" }}</small>
-                                </div>
+    /* --- BOUTON CRÉER (Positionné exactement comme sur l'image) --- */
+    .btn-create-user {
+        position: absolute;
+        top: 50%;
+        right: 45px;
+        transform: translateY(-50%);
+        background: #1d68f5; /* Bleu identique au bouton */
+        color: #ffffff !important;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 18px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-create-user:hover {
+        background: #1656d1;
+        transform: translateY(-52%);
+    }
+
+    /* --- CONTENEUR DU TABLEAU --- */
+    .table-container-card {
+        background: #ffffff;
+        border-radius: 25px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.02);
+        margin: 0 20px 40px 20px;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .table thead th {
+        background-color: transparent;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #64748b;
+        padding: 20px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody td {
+        padding: 20px;
+        border-bottom: 1px solid #f8fafc;
+    }
+
+    /* --- STYLE DES CELLULES --- */
+    .user-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        background: #1d68f5;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .user-name {
+        font-weight: 800;
+        color: #111827;
+        font-size: 1.05rem;
+    }
+
+    .user-meta {
+        color: #94a3b8;
+        font-size: 0.75rem;
+    }
+
+    .email-text {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    /* Badge Rôle */
+    .role-badge {
+        background: #00e5ff; /* Cyan comme sur l'image */
+        color: #111827;
+        font-weight: 700;
+        font-size: 0.7rem;
+        padding: 6px 15px;
+        border-radius: 20px;
+        text-transform: uppercase;
+    }
+
+    /* État Compte */
+    .status-active {
+        color: #10b981;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+    }
+
+    /* --- BOUTONS ACTIONS --- */
+    .btn-pro-edit {
+        border: 1px solid #3b82f6;
+        color: #3b82f6 !important;
+        background: transparent;
+        padding: 7px 24px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        transition: 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-pro-delete {
+        border: 1px solid #ef4444;
+        color: #ef4444 !important;
+        background: transparent;
+        padding: 7px 24px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        transition: 0.2s;
+        text-decoration: none;
+        margin-left: 8px;
+    }
+</style>
+
+<section class="hero-banner-users">
+    <div class="hero-text-block text-start">
+        <p class="hero-eyebrow">User Management</p>
+        <h1 class="hero-title">
+            <i class="ri-group-fill"></i> Liste des Utilisateurs
+        </h1>
+        <p class="hero-subtitle lead mb-0">
+            Gérez les accès et les permissions des membres de l'équipe.
+        </p>
+    </div>
+    
+    <a href="{% url 'create_user' %}" class="btn-create-user">
+        + Créer un Utilisateur
+    </a>
+</section>
+
+<section class="table-container-card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Identité Utilisateur</th>
+                    <th>Contact Email</th>
+                    <th>Rôle Système</th>
+                    <th>État du Compte</th>
+                    <th class="text-center">Actions de Gestion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in user_results %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar me-3">
+                                {{ user.username|slice:":1"|upper }}
                             </div>
-                        </td>
-                        <td>
-                            <span class="text-secondary">{{ user.email|default:"—" }}</span>
-                        </td>
-                        <td>
-                            {% if user.is_superuser %}
-                                <span class="badge rounded-pill bg-dark text-white px-3 py-2 fw-semibold shadow-sm" style="font-size: 0.7rem;">
-                                    <i class="bi bi-shield-lock me-1"></i> ADMINISTRATEUR
-                                </span>
-                            {% elif user.is_staff %}
-                                <span class="badge rounded-pill bg-info text-dark px-3 py-2 fw-semibold" style="font-size: 0.7rem;">
-                                    <i class="bi bi-person-badge me-1"></i> LIBRARIAN STAFF
-                                </span>
-                            {% else %}
-                                <span class="badge rounded-pill bg-light text-muted border px-3 py-2 fw-semibold" style="font-size: 0.7rem;">
-                                    STANDARD USER
-                                </span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if user.is_active %}
-                                <div class="d-flex align-items-center text-success fw-bold" style="font-size: 0.85rem;">
-                                    <span class="pulse-green me-2"></span> Compte Actif
-                                </div>
-                            {% else %}
-                                <div class="d-flex align-items-center text-danger fw-bold" style="font-size: 0.85rem;">
-                                    <span class="pulse-red me-2"></span> Désactivé
-                                </div>
-                            {% endif %}
-                        </td>
-                        <td class="pe-4 text-end">
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="{% url 'edit_user' user_id=user.user_id %}" 
-                                   class="btn btn-sm btn-outline-primary border-2 fw-bold px-3 rounded-pill transition-all">
-                                    ÉDITER
-                                </a>
-                                
-                                <form method="POST" action="{% url 'delete_user_action' user_id=user.user_id %}" 
-                                      onsubmit="return confirm('Confirmer la suspension de l\'utilisateur {{ user.username }} ?');">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger border-2 fw-bold px-3 rounded-pill transition-all" 
-                                            {% if user.is_superuser or not user.is_active %}disabled style="opacity: 0.4; cursor: not-allowed;"{% endif %}>
-                                        SUPPRIMER
-                                    </button>
-                                </form>
+                            <div>
+                                <div class="user-name">{{ user.username }}</div>
+                                <div class="user-meta">Inscrit le : {{ user.date_joined|date:"d/m/Y" }}</div>
                             </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center py-5">
-                            <div class="text-muted fs-5">Aucun membre de l'équipe trouvé.</div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="email-text">{{ user.email|default:"—" }}</span>
+                    </td>
+                    <td>
+                        <span class="role-badge">
+                            {% if user.is_superuser %}Administrateur{% else %}Librarian Staff{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="status-active">
+                            <div class="status-dot"></div> Compte Actif
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'edit_user' user_id=user.user_id %}" class="btn-pro-edit">ÉDITER</a>
+                        <form method="POST" action="{% url 'delete_user_action' user_id=user.user_id %}" style="display:inline;" onsubmit="return confirm('Confirmer la suspension ?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-pro-delete" {% if user.is_superuser %}disabled style="opacity:0.5"{% endif %}>SUPPRIMER</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">Aucun utilisateur trouvé.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </section>
-        </div>
-    </main>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const panel = document.getElementById('profilePanel');
-        const toggleBtn = document.getElementById('profileToggle');
-        const closeBtn = document.getElementById('profileClose');
-        const overlay = document.getElementById('profileOverlay');
-
-        if (panel && toggleBtn) {
-            toggleBtn.addEventListener('click', () => panel.classList.toggle('open'));
-            [closeBtn, overlay].forEach(el => {
-                if (el) el.addEventListener('click', () => panel.classList.remove('open'));
-            });
-        }
-    });
-</script>
-</body>
-</html>
-<style>
-    /* Animation de statut (petit point clignotant) */
-.pulse-green {
-    width: 8px; height: 8px; background-color: #28a745; border-radius: 50%;
-    box-shadow: 0 0 0 rgba(40, 167, 69, 0.4); animation: pulse 2s infinite;
-}
-.pulse-red {
-    width: 8px; height: 8px; background-color: #dc3545; border-radius: 50%;
-}
-@keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
-}
-
-.fs-xs { font-size: 0.75rem; }
-.transition-all { transition: all 0.3s ease; }
-.transition-all:hover { transform: scale(1.05); }
-</style>
+{% endblock %}
