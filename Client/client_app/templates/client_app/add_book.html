@@ -4,179 +4,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add New Book | Library System</title>
+    <title>Ajouter un Livre | Dashboard</title>
     
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=3">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-
+    
     <style>
-        :root {
-            --primary: #ff4757;
-            --dark: #0f172a;
-            --glass-bg: rgba(255, 255, 255, 0.92);
-        }
-
-        /* Arrière-plan strictement fixe */
-        body, html {
-            margin: 0; padding: 0;
-            height: 100vh; width: 100vw;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: url('{{ bg_image|default:"/static/images/default-bg.jpg" }}') center/cover no-repeat fixed;
-            overflow: hidden; /* Désactive tout scroll */
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .page-overlay {
-            position: fixed; inset: 0;
-            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.7) 100%);
-            z-index: -1;
-        }
-
-        /* Carte large et compacte (S'adapte à l'écran) */
-        .wide-card {
-            width: 95%;
-            max-width: 1200px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.5);
-            padding: 2.5rem;
-            animation: fadeInScale 0.6s ease-out;
-        }
-
-        /* Header compact */
-        .compact-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 2rem; border-bottom: 1px solid rgba(0,0,0,0.05);
-            padding-bottom: 1rem;
-        }
-        .title-area h1 { font-weight: 800; font-size: 1.8rem; color: var(--dark); margin: 0; }
-        .btn-back {
-            text-decoration: none; color: var(--dark); font-weight: 700;
-            padding: 8px 16px; background: white; border-radius: 10px;
-            font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: 0.3s;
-        }
-        .btn-back:hover { color: var(--primary); transform: translateX(-3s); }
-
-        /* Grille de saisie optimisée */
+        .sidebar-link.active { background: rgba(255,255,255,0.1); font-weight: bold; }
+        
+        /* Adaptation des Input Boxes pour fond blanc */
         .input-box {
-            background: white; border: 2px solid transparent; border-radius: 14px;
-            padding: 10px 18px; transition: 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            background: #f8fafc; /* Gris très léger au lieu du blanc pur */
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 15px;
+            transition: 0.3s;
+            margin-bottom: 1rem;
         }
         .input-box:focus-within {
-            border-color: var(--primary); transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(255, 71, 87, 0.1);
+            border-color: #3f72af; /* Bleu ISMAC */
+            background: white;
+            box-shadow: 0 4px 12px rgba(63, 114, 175, 0.08);
         }
-        .input-box label { display: block; font-size: 0.65rem; font-weight: 800; color: #94a3b8; margin-bottom: 2px; }
-        .input-box input { width: 100%; border: none; outline: none; font-weight: 600; font-size: 0.95rem; color: var(--dark); }
+        .input-box label { 
+            display: block; 
+            font-size: 0.65rem; 
+            font-weight: 800; 
+            color: #64748b; 
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .input-box input { 
+            width: 100%; 
+            border: none; 
+            outline: none; 
+            font-weight: 600; 
+            font-size: 0.95rem; 
+            color: #0f172a;
+            background: transparent;
+        }
 
-        /* Dropzone compacte */
         .compact-upload {
-            border: 2px dashed #cbd5e1; border-radius: 16px; padding: 1.2rem;
-            text-align: center; cursor: pointer; transition: 0.3s;
-            background: rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; gap: 15px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-        .compact-upload:hover { border-color: var(--primary); background: rgba(255, 71, 87, 0.02); }
-        .upload-icon { font-size: 1.8rem; color: var(--primary); }
+        .compact-upload:hover { border-color: #3f72af; background: #f0f7ff; }
 
-        /* Bouton Action Large */
         .btn-submit {
-            background: var(--dark); color: white; border: none; padding: 1rem;
-            border-radius: 14px; font-weight: 800; width: 100%;
-            transition: 0.4s; display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            width: 100%;
+            transition: 0.3s;
         }
-        .btn-submit:hover { background: var(--primary); box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3); }
-
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        .btn-submit:hover { background: #3f72af; transform: translateY(-2px); shadow: 0 10px 15px rgba(0,0,0,0.1); }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
 
-    <div class="page-overlay"></div>
+<div class="dashboard-layout">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-logo">
+            <img src="{{ MEDIA_URL }}{{ logo_image }}" alt="Logo" class="logo-img">
+        </div>
+        <nav class="sidebar-nav">
+            <p class="sidebar-section-label">LIBRARY</p>
+            <a href="{% url 'dashboard' %}" class="sidebar-link">Dashboard</a>
+            <a href="{% url 'add_book' %}" class="sidebar-link active">Add New Book</a>
+            <a href="{% url 'books_list' %}" class="sidebar-link">📚 Manage Books</a>
+            <a href="{% url 'users_list' %}" class="sidebar-link">📖 Users</a>
+            <a href="{% url 'members_list' %}" class="sidebar-link">📖 Members</a>
+            <p class="sidebar-section-label">ACCOUNT</p>
+            <a href="{% url 'staff_profile' %}" class="sidebar-link">👤 My Profile</a>
+        </nav>
+    </aside>
 
-    <div class="wide-card shadow-lg">
-        <header class="compact-header">
-            <div class="title-area d-flex align-items-center gap-3">
-                <i class="ri-add-box-fill text-primary fs-2"></i>
-                <div>
-                    <h1>New Inventory Book</h1>
-                    <p class="text-muted small m-0">Add a new title to the central library records.</p>
+    <main class="dashboard-main">
+        <div class="dashboard-main-inner">
+            <header class="topbar">
+                <div class="topbar-search">
+                    <span class="text-muted fw-light">Inventory / <strong>New Book</strong></span>
                 </div>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <span class="badge bg-light text-dark border p-2 fw-bold">User: {{ username }}</span>
-                <a href="{% url 'dashboard' %}" class="btn-back">
-                    <i class="ri-arrow-left-line"></i> Dashboard
-                </a>
-            </div>
-        </header>
+                <div class="topbar-user">
+                    <span class="topbar-username">{{ username|default:"Librarian" }}</span>
+                    <div class="topbar-avatar-btn">👤</div>
+                </div>
+            </header>
 
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
+            <section class="hero-banner">
+                <div class="hero-text-block">
+                    <p class="hero-eyebrow">Inventory Management</p>
+                    <h1 class="hero-title">📚 Ajouter un Nouveau Livre</h1>
+                    <p class="hero-subtitle">Remplissez les informations ci-dessous pour mettre à jour le catalogue central.</p>
+                </div>
+                <div class="hero-actions">
+                    <a href="{% url 'books_list' %}" class="btn btn-outline-light rounded-pill px-4">Voir la liste</a>
+                </div>
+            </section>
 
-            <div class="row g-3">
-                <div class="col-md-8">
-                    <div class="input-box">
-                        <label>OFFICIAL TITLE *</label>
-                        <input type="text" name="title" placeholder="Enter book title" required>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="input-box">
-                        <label>ISBN-13 CODE *</label>
-                        <input type="text" name="isbn" placeholder="978-XXXXXXXXXX" required>
-                    </div>
-                </div>
+            <section class="dashboard-section p-4">
+                <div class="row justify-content-center">
+                    <div class="col-xl-10">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                            
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} rounded-3 border-0">{{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
 
-                <div class="col-md-4">
-                    <div class="input-box">
-                        <label>AUTHOR / CONTRIBUTOR *</label>
-                        <input type="text" name="author" placeholder="Jane Doe" required>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="input-box">
-                        <label>QUANTITY *</label>
-                        <input type="number" name="copies" min="1" value="1" required>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="compact-upload" onclick="document.getElementById('id_image').click()">
-                        <i class="ri-image-add-line upload-icon"></i>
-                        <div class="text-start">
-                            <p class="m-0 small fw-bold text-dark">Cover Image (Optional)</p>
-                            <span class="text-muted" style="font-size: 0.7rem;">Click to upload JPG or PNG</span>
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <div class="input-box">
+                                            <label>Titre Officiel de l'ouvrage *</label>
+                                            <input type="text" name="title" placeholder="ex: Le Petit Prince" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="input-box">
+                                            <label>Code ISBN-13 *</label>
+                                            <input type="text" name="isbn" placeholder="978-XXXXXXXXXX" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="input-box">
+                                            <label>Auteur / Contributeur *</label>
+                                            <input type="text" name="author" placeholder="Antoine de Saint-Exupéry" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="input-box">
+                                            <label>Quantité *</label>
+                                            <input type="number" name="copies" min="1" value="1" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="compact-upload" onclick="document.getElementById('id_image').click()">
+                                            <i class="ri-image-add-line fs-3 text-primary"></i>
+                                            <div class="text-start">
+                                                <p class="m-0 small fw-bold text-dark">Image de Couverture</p>
+                                                <span class="text-muted" style="font-size: 0.7rem;">Cliquer pour uploader (JPG/PNG)</span>
+                                            </div>
+                                            <input type="file" id="id_image" name="image" accept="image/*" hidden>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-4 text-center">
+                                        <button type="submit" class="btn-submit">
+                                            <i class="ri-save-3-line me-2"></i> ENREGISTRER DANS L'INVENTAIRE
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                        <input type="file" id="id_image" name="image" accept="image/*" hidden>
                     </div>
                 </div>
+            </section>
+        </div>
+    </main>
+</div>
 
-                <div class="col-12 mt-4">
-                    <button type="submit" class="btn-submit">
-                        <i class="ri-save-fill fs-5"></i> Commit to Library Inventory
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
+<script>
+    // Feedback visuel pour l'upload d'image
+    document.getElementById('id_image').addEventListener('change', function(e) {
+        if(this.files && this.files[0]) {
+            const name = this.files[0].name;
+            document.querySelector('.compact-upload p').innerText = "Fichier : " + name;
+            document.querySelector('.compact-upload p').classList.add('text-primary');
+            document.querySelector('.compact-upload').style.borderColor = "#3f72af";
+        }
+    });
+</script>
 
-    <script>
-        // Feedback pour l'upload
-        document.getElementById('id_image').addEventListener('change', function(e) {
-            if(this.files && this.files[0]) {
-                const name = this.files[0].name;
-                document.querySelector('.compact-upload p').innerText = "File: " + name;
-                document.querySelector('.compact-upload').style.borderColor = "#ff4757";
-            }
-        });
-    </script>
 </body>
 </html>
