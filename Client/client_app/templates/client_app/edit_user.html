@@ -1,223 +1,230 @@
+{% extends "layout.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier Staff | Librarian Dashboard</title>
-    
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=3">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    
-    <style>
-        .sidebar-link.active { background: rgba(255,255,255,0.1); font-weight: bold; }
-        
-        /* Style des boîtes de saisie normalisées */
-        .input-box {
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 10px 15px;
-            transition: 0.3s;
-            margin-bottom: 1rem;
-            position: relative;
-        }
-        .input-box:focus-within {
-            border-color: #3f72af;
-            background: white;
-            box-shadow: 0 4px 12px rgba(63, 114, 175, 0.1);
-        }
-        .input-box label { 
-            display: block; 
-            font-size: 0.65rem; 
-            font-weight: 800; 
-            color: #64748b; 
-            text-transform: uppercase;
-            margin-bottom: 2px;
-        }
-        .input-box input { 
-            width: 100%; 
-            border: none; 
-            outline: none; 
-            font-weight: 600; 
-            font-size: 0.95rem; 
-            color: #0f172a;
-            background: transparent;
-        }
 
-        .btn-submit {
-            background: #0f172a;
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 700;
-            width: 100%;
-            transition: 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .btn-submit:hover { 
-            background: #3f72af; 
-            transform: translateY(-2px); 
-            box-shadow: 0 10px 20px rgba(63, 114, 175, 0.2); 
-        }
+{% block title %}Modifier Staff | Librarian Dashboard{% endblock %}
 
-        .status-badge {
-            background: rgba(63, 114, 175, 0.1);
-            color: #3f72af;
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 0.75rem;
-        }
+{% block nav_users %}active opacity-100{% endblock %}
+{% block breadcrumb_parent %}Administration{% endblock %}
+{% block breadcrumb_active %}Édition Utilisateur{% endblock %}
 
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #94a3b8;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-    </style>
-</head>
-<body class="dashboard-page">
+{% block content %}
+<style>
+    /* --- SECTION HEADER / HERO OPTIMISÉE --- */
+    .hero-banner-edit {
+        background: #9d3ffc; 
+        border-radius: 25px;
+        color: white;
+        padding: 40px 45px;
+        margin: 20px;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(157, 63, 252, 0.25);
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-<div class="dashboard-layout">
-    <aside class="dashboard-sidebar">
-        <div class="sidebar-logo">
-            <img src="{{ MEDIA_URL }}{{ logo_image }}" alt="Logo" class="logo-img">
+    /* Décoration de fond */
+    .hero-banner-edit::after {
+        content: "";
+        position: absolute;
+        top: -30%; right: -5%;
+        width: 300px; height: 300px;
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .hero-eyebrow {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        opacity: 0.8;
+        margin-bottom: 8px;
+    }
+
+    .hero-title {
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        font-size: 2.2rem;
+        margin: 0;
+    }
+
+    .status-badge-inline {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(5px);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .technical-id {
+        margin-top: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        opacity: 0.85;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* --- BOUTON RETOUR PRO (POSITIONNÉ À DROITE) --- */
+    .btn-back-list-pro {
+        background: rgba(255, 255, 255, 0.1);
+        color: white !important;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(10px);
+        z-index: 2;
+    }
+
+    .btn-back-list-pro:hover {
+        background: white;
+        color: #9d3ffc !important;
+        transform: translateX(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    /* --- FORM CARD --- */
+    .form-container-card {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        padding: 40px;
+        margin: 0 20px 40px 20px;
+    }
+
+    .input-box {
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        padding: 10px 20px;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .input-box:focus-within {
+        border-color: #3f72af;
+        box-shadow: 0 0 0 3px rgba(63, 114, 175, 0.1);
+    }
+
+    .input-box label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #6b7280;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    .input-box input {
+        width: 100%;
+        border: none;
+        outline: none;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #111827;
+        background: transparent;
+    }
+
+    .btn-save-black {
+        background: #111827;
+        color: white !important;
+        width: 100%;
+        padding: 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        border: none;
+        margin-top: 25px;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .btn-cancel-pro {
+        width: 100%; padding: 16px; border-radius: 12px; font-weight: 700;
+        background: #64748b; color: white !important; display: flex; align-items: center; justify-content: center;
+        text-transform: uppercase; letter-spacing: 1px; margin-top: 15px; text-decoration: none;
+    }
+</style>
+
+<section class="hero-banner-edit shadow-sm">
+    <div class="hero-text-block">
+        <p class="hero-eyebrow">Account Editor</p>
+        <div class="d-flex align-items-center gap-3">
+            <h1 class="hero-title">Edit :       {{ user_details.username }}</h1>
+            <span class="status-badge-inline">{{ user_details.is_active|yesno:"Compte Actif, Désactivé" }}</span>
         </div>
-        <nav class="sidebar-nav">
-            <p class="sidebar-section-label">LIBRARY</p>
-            <a href="{% url 'dashboard' %}" class="sidebar-link">Dashboard</a>
-            <a href="{% url 'books_list' %}" class="sidebar-link">📚 Manage Books</a>
-            <a href="{% url 'users_list' %}" class="sidebar-link active">📖 Users Staff</a>
-            <a href="{% url 'members_list' %}" class="sidebar-link">👥 Members</a>
-            <p class="sidebar-section-label">ACCOUNT</p>
-            <a href="{% url 'staff_profile' %}" class="sidebar-link">👤 My Profile</a>
-        </nav>
-    </aside>
+    </div>
+    
+    <a href="{% url 'users_list' %}" class="btn-back-list-pro">
+        <i class="ri-arrow-left-s-line"></i>
+        <span>Retour à la liste</span>
+    </a>
+</section>
 
-    <main class="dashboard-main">
-        <div class="dashboard-main-inner">
-            <header class="topbar">
-                <div class="topbar-search">
-                    <span class="text-muted fw-light">Administration / <strong>Édition Utilisateur</strong></span>
-                </div>
-                <div class="topbar-user">
-                    <span class="topbar-username">{{ username|default:"Admin" }}</span>
-                    <div class="topbar-avatar-btn">👤</div>
-                </div>
-            </header>
-
-            <section class="hero-banner">
-                <div class="hero-text-block">
-                    <p class="hero-eyebrow">Account Editor</p>
-                    <div class="d-flex align-items-center gap-3">
-                        <h1 class="hero-title">✏️ Éditer : {{ user_details.username }}</h1>
-                        <span class="status-badge">{{ user_details.is_active|yesno:"Compte Actif, Désactivé" }}</span>
+<section class="row justify-content-center">
+    <div class="col-xl-11">
+        <div class="form-container-card">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="row text-start">
+                    <div class="col-12 mb-4">
+                        <h6 class="fw-bold text-dark text-uppercase" style="letter-spacing: 1px; font-size: 0.8rem;">Informations de Compte</h6>
                     </div>
-                    <p class="hero-subtitle">Mise à jour de l'ID technique : #{{ user_id }}</p>
-                </div>
-                <div class="hero-actions">
-                    <a href="{% url 'users_list' %}" class="btn btn-outline-light rounded-pill px-4">
-                        <i class="ri-arrow-left-line me-1"></i> Liste du staff
-                    </a>
-                </div>
-            </section>
 
-            <section class="dashboard-section p-4">
-                <div class="row justify-content-center">
-                    <div class="col-xl-8">
-                        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
-                            
-                            {% if error_message %}
-                                <div class="alert alert-danger border-0 rounded-3 mb-4 shadow-sm">
-                                    <i class="ri-error-warning-line me-2"></i> {{ error_message }}
-                                </div>
-                            {% elif success_message %}
-                                <div class="alert alert-success border-0 rounded-3 mb-4 shadow-sm">
-                                    <i class="ri-checkbox-circle-line me-2"></i> {{ success_message }}
-                                </div>
-                            {% endif %}
-
-                            <form method="POST">
-                                {% csrf_token %}
-                                
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <h5 class="mb-4 text-dark fw-bold border-bottom pb-2">Informations de Compte</h5>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="input-box">
-                                            <label>Nom d'utilisateur *</label>
-                                            <input type="text" name="username" value="{{ user_details.username }}" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="input-box">
-                                            <label>Email professionnel</label>
-                                            <input type="email" name="email" value="{{ user_details.email|default:'' }}">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-12 mt-4">
-                                        <h5 class="mb-2 text-dark fw-bold border-bottom pb-2">Sécurité</h5>
-                                        <p class="text-muted small mb-4">Laissez vide pour conserver le mot de passe actuel.</p>
-                                    </div>
-
-                                    <div class="col-md-12">
-                                        <div class="input-box">
-                                            <label>Nouveau mot de passe</label>
-                                            <input type="password" id="id_new_password" name="new_password" placeholder="••••••••">
-                                            <button type="button" class="password-toggle" onclick="togglePwd('id_new_password', this)">
-                                                <i class="ri-eye-line" id="eyeIcon"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12 mt-4">
-                                        <button type="submit" class="btn-submit shadow">
-                                            <i class="ri-save-3-fill me-2"></i> Sauvegarder les modifications
-                                        </button>
-                                        <div class="text-center mt-3">
-                                            <a href="{% url 'users_list' %}" class="text-muted small text-decoration-none">
-                                                <i class="ri-close-line"></i> Annuler et retourner
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
+                    <div class="col-md-6 mb-3">
+                        <div class="input-box">
+                            <label>Nom d'utilisateur *</label>
+                            <input type="text" name="username" value="{{ user_details.username }}" required>
                         </div>
                     </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="input-box">
+                            <label>Email professionnel</label>
+                            <input type="email" name="email" value="{{ user_details.email|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-4 mb-2">
+                        <h6 class="fw-bold text-dark text-uppercase" style="letter-spacing: 1px; font-size: 0.8rem;">Sécurité</h6>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <div class="input-box">
+                            <label>Nouveau mot de passe (Laisser vide pour ne pas changer)</label>
+                            <input type="password" id="id_new_password" name="new_password" placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <button type="submit" class="btn-save-black shadow">
+                            <i class="ri-save-3-fill"></i> Sauvegarder les modifications
+                        </button>
+                        
+                        <a href="{% url 'users_list' %}" class="btn-cancel-pro shadow-sm">
+                            <i class="ri-close-line"></i> Annuler et retourner
+                        </a>
+                    </div>
                 </div>
-            </section>
+            </form>
         </div>
-    </main>
-</div>
+    </div>
+</section>
 
-<script>
-function togglePwd(inputId, btn){
-    const el = document.getElementById(inputId);
-    const icon = btn.querySelector('i');
-    if(el.type === "password"){
-        el.type = "text";
-        icon.classList.replace('ri-eye-line', 'ri-eye-off-line');
-    } else {
-        el.type = "password";
-        icon.classList.replace('ri-eye-off-line', 'ri-eye-line');
-    }
-}
-</script>
-
-</body>
-</html>
+{% endblock %}

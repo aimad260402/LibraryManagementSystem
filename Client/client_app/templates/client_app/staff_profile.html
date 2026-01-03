@@ -1,186 +1,212 @@
+{% extends "layout.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Profil | Librarian Dashboard</title>
-    
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=3">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    
-    <style>
-        .sidebar-link.active { background: rgba(255,255,255,0.1); font-weight: bold; }
-        
-        /* Style des boîtes de saisie normalisées */
-        .input-box {
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 10px 15px;
-            transition: 0.3s;
-            margin-bottom: 1.2rem;
-        }
-        .input-box:focus-within {
-            border-color: #3f72af;
-            background: white;
-            box-shadow: 0 4px 12px rgba(63, 114, 175, 0.1);
-        }
-        .input-box label { 
-            display: block; 
-            font-size: 0.65rem; 
-            font-weight: 800; 
-            color: #64748b; 
-            text-transform: uppercase;
-            margin-bottom: 2px;
-        }
-        .input-box input { 
-            width: 100%; 
-            border: none; 
-            outline: none; 
-            font-weight: 600; 
-            font-size: 0.95rem; 
-            color: #0f172a;
-            background: transparent;
-        }
 
-        .security-banner {
-            background-color: #fff3cd;
-            color: #856404;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+{% block title %}Mon Profil | Librarian Dashboard{% endblock %}
 
-        .btn-save-profile {
-            background: #0f172a;
-            color: white;
-            border: none;
-            padding: 14px 30px;
-            border-radius: 12px;
-            font-weight: 700;
-            transition: 0.3s;
-            width: 100%;
-        }
-        .btn-save-profile:hover { 
-            background: #3f72af; 
-            transform: translateY(-2px); 
-            box-shadow: 0 10px 15px rgba(63, 114, 175, 0.2); 
-        }
-    </style>
-</head>
-<body class="dashboard-page">
+{% block nav_profile %}active opacity-100{% endblock %}
+{% block breadcrumb_parent %}Paramètres{% endblock %}
+{% block breadcrumb_active %}Mon Profil Staff{% endblock %}
 
-<div class="dashboard-layout">
-    <aside class="dashboard-sidebar">
-        <div class="sidebar-logo">
-            <img src="{{ MEDIA_URL }}{{ logo_image }}" alt="Logo" class="logo-img">
-        </div>
-        <nav class="sidebar-nav">
-            <p class="sidebar-section-label">LIBRARY</p>
-            <a href="{% url 'dashboard' %}" class="sidebar-link">Dashboard</a>
-            <a href="{% url 'books_list' %}" class="sidebar-link">📚 Manage Books</a>
-            <a href="{% url 'users_list' %}" class="sidebar-link">📖 Users Staff</a>
-            <a href="{% url 'members_list' %}" class="sidebar-link">👥 Members</a>
-            <p class="sidebar-section-label">ACCOUNT</p>
-            <a href="{% url 'staff_profile' %}" class="sidebar-link active">👤 My Profile</a>
-        </nav>
-    </aside>
+{% block content %}
+<style>
+    /* --- SECTION HEADER / HERO (Violet Signature) --- */
+    .hero-banner-profile {
+        background: #3f72af; 
+        border-radius: 25px;
+        color: white;
+        padding: 35px 45px;
+        margin: 20px;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(157, 63, 252, 0.2);
+    }
 
-    <main class="dashboard-main">
-        <div class="dashboard-main-inner">
-            <header class="topbar">
-                <div class="topbar-search">
-                    <span class="text-muted fw-light">Paramètres / <strong>Mon Profil Staff</strong></span>
+    .hero-eyebrow {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        opacity: 0.8;
+        margin-bottom: 5px;
+    }
+
+    .hero-title {
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 2.2rem;
+    }
+
+    /* --- FORM CARD DESIGN --- */
+    .profile-card {
+        background: #ffffff;
+        border-radius: 25px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        padding: 40px;
+        margin: 0 20px 40px 20px;
+    }
+
+    /* --- INPUT BOX (DESIGN IDENTIQUE ADD_BOOK) --- */
+    .input-group-custom {
+        margin-bottom: 20px;
+    }
+
+    .input-box {
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        padding: 10px 20px;
+        transition: all 0.2s ease;
+    }
+
+    .input-box:focus-within {
+        border-color: #3f72af;
+        box-shadow: 0 0 0 3px rgba(63, 114, 175, 0.1);
+    }
+
+    .input-box label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #6b7280;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+        letter-spacing: 0.5px;
+        text-align: left;
+    }
+
+    .input-box input {
+        width: 100%;
+        border: none;
+        outline: none;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #111827;
+        background: transparent;
+    }
+
+    /* --- BANNIÈRE DE SÉCURITÉ --- */
+    .security-alert {
+        background-color: #fffbeb;
+        border-left: 4px solid #f59e0b;
+        color: #92400e;
+        padding: 15px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* --- BOUTON NOIR PLEINE LARGEUR --- */
+    .btn-save-profile {
+        background: #111827;
+        color: #ffffff !important;
+        width: 100%;
+        padding: 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        border: none;
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+    .btn-save-profile:hover {
+        background: #1f2937;
+        transform: translateY(-2px);
+    }
+</style>
+
+<section class="hero-banner-profile shadow-sm">
+    <div class="hero-text-block text-start">
+        <p class="hero-eyebrow">Personal Settings</p>
+        <h1 class="hero-title">
+            <span style="font-size: 2rem;">👤</span> Mon Profil
+        </h1>
+        <p class="hero-subtitle lead mb-0 opacity-90" style="font-size: 1rem;">
+            Identifiant Staff : <strong>#{{ staff_id }}</strong> — Gérez vos accès et informations de sécurité.
+        </p>
+    </div>
+</section>
+
+<section class="row justify-content-center">
+    <div class="col-xl-11">
+        <div class="profile-card">
+            
+            {% if error_message %}
+                <div class="alert alert-danger border-0 rounded-3 mb-4 shadow-sm text-start small">
+                    <i class="ri-error-warning-line me-2"></i> {{ error_message }}
                 </div>
-                <div class="topbar-user">
-                    <span class="topbar-username">{{ username|default:"Librarian" }}</span>
-                    <div class="topbar-avatar-btn">👤</div>
+            {% elif success_message %}
+                <div class="alert alert-success border-0 rounded-3 mb-4 shadow-sm text-start small">
+                    <i class="ri-checkbox-circle-line me-2"></i> {{ success_message }}
                 </div>
-            </header>
+            {% endif %}
 
-            <section class="hero-banner" style="background: linear-gradient(135deg, #112d4e 0%, #3f72af 100%);">
-                <div class="hero-text-block">
-                    <p class="hero-eyebrow">Personal Settings</p>
-                    <h1 class="hero-title">👤 Gestion du Profil</h1>
-                    <p class="hero-subtitle">Identifiant Staff : <strong>#{{ staff_id }}</strong> — Gérez vos accès et informations de sécurité.</p>
-                </div>
-            </section>
+            <form method="post" action="{% url 'staff_profile' %}">
+                {% csrf_token %}
 
-            <section class="dashboard-section p-4">
-                <div class="row justify-content-center">
-                    <div class="col-xl-9">
+                <div class="row text-start">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-dark text-uppercase mb-4" style="letter-spacing: 1px; font-size: 0.8rem;">Informations d'identité</h6>
                         
-                        {% if error_message %}
-                            <div class="alert alert-danger border-0 rounded-3 mb-4 shadow-sm">
-                                <i class="ri-error-warning-line me-2"></i> {{ error_message }}
+                        <div class="input-group-custom">
+                            <div class="input-box">
+                                <label>Nom d'utilisateur</label>
+                                <input type="text" name="new_username" value="{{ username }}" required>
                             </div>
-                        {% elif success_message %}
-                            <div class="alert alert-success border-0 rounded-3 mb-4 shadow-sm">
-                                <i class="ri-checkbox-circle-line me-2"></i> {{ success_message }}
+                        </div>
+
+                        <div class="input-group-custom">
+                            <div class="input-box">
+                                <label>Adresse Email</label>
+                                <input type="email" name="new_email" value="{{ email }}" placeholder="Email de contact">
                             </div>
-                        {% endif %}
+                        </div>
+                    </div>
 
-                        <form method="post" action="{% url 'staff_profile' %}">
-                            {% csrf_token %}
+                    <div class="col-md-6 border-start-md">
+                        <h6 class="fw-bold text-dark text-uppercase mb-4" style="letter-spacing: 1px; font-size: 0.8rem;">Sécurité & Mot de passe</h6>
 
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
-                                        <h5 class="mb-4 text-dark fw-bold border-bottom pb-2">Identifiants</h5>
-                                        
-                                        <div class="input-box">
-                                            <label>Nom d'utilisateur</label>
-                                            <input type="text" name="new_username" value="{{ username }}" required>
-                                        </div>
-
-                                        <div class="input-box">
-                                            <label>Adresse Email</label>
-                                            <input type="email" name="new_email" value="{{ email }}" placeholder="Email de contact">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
-                                        <h5 class="mb-4 text-dark fw-bold border-bottom pb-2">Sécurité</h5>
-
-                                        <div class="input-box">
-                                            <label>Nouveau mot de passe (Optionnel)</label>
-                                            <input type="password" name="new_password" placeholder="Laisser vide pour ne pas changer">
-                                        </div>
-
-                                        <div class="security-banner">
-                                            <i class="ri-shield-keyhole-line fs-4"></i>
-                                            <span>Vous devez confirmer votre <strong>mot de passe actuel</strong> pour enregistrer.</span>
-                                        </div>
-
-                                        <div class="input-box" style="border-color: #ffcc00; background: #fffdf5;">
-                                            <label style="color: #856404;">Mot de passe actuel *</label>
-                                            <input type="password" name="current_password" required>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 text-end mt-2">
-                                    <button type="submit" class="btn-save-profile shadow">
-                                        <i class="ri-save-3-line me-2"></i> ENREGISTRER LES MODIFICATIONS
-                                    </button>
-                                </div>
+                        <div class="input-group-custom">
+                            <div class="input-box">
+                                <label>Nouveau mot de passe (Optionnel)</label>
+                                <input type="password" name="new_password" placeholder="Laisser vide pour ne pas changer">
                             </div>
-                        </form>
+                        </div>
+
+                        <div class="security-alert">
+                            <i class="ri-shield-keyhole-line fs-4"></i>
+                            <span>Pour valider ces changements, veuillez confirmer votre <strong>mot de passe actuel</strong>.</span>
+                        </div>
+
+                        <div class="input-group-custom">
+                            <div class="input-box" style="border-color: #f59e0b;">
+                                <label style="color: #b45309;">Mot de passe actuel *</label>
+                                <input type="password" name="current_password" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <button type="submit" class="btn-save-profile">
+                            <i class="ri-save-3-line"></i> Enregistrer les modifications
+                        </button>
                     </div>
                 </div>
-            </section>
+            </form>
         </div>
-    </main>
-</div>
-
-</body>
-</html>
+    </div>
+</section>
+{% endblock %}
