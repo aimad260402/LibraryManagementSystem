@@ -11,3 +11,12 @@ try:
 except Exception as e:
     print(f"FATAL: Django setup failed. Details: {e}") 
     sys.exit(1)
+    
+# ----------------------------------------------------
+# 2. Generated Code Imports
+# ----------------------------------------------------
+from django.contrib.auth.models import User
+from library_admin.models import Book, Loan, Member 
+
+import library_pb2
+import library_pb2_grpc
