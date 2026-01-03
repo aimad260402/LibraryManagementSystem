@@ -1,225 +1,186 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
+    <title>Mon Profil | Librarian Dashboard</title>
+    
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=3">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
     <style>
-    /* Page background like image 2/3 */
-    .profile-page {
-        background-color: #f3f4f6;
-    }
+        .sidebar-link.active { background: rgba(255,255,255,0.1); font-weight: bold; }
+        
+        /* Style des boîtes de saisie normalisées */
+        .input-box {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 15px;
+            transition: 0.3s;
+            margin-bottom: 1.2rem;
+        }
+        .input-box:focus-within {
+            border-color: #3f72af;
+            background: white;
+            box-shadow: 0 4px 12px rgba(63, 114, 175, 0.1);
+        }
+        .input-box label { 
+            display: block; 
+            font-size: 0.65rem; 
+            font-weight: 800; 
+            color: #64748b; 
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .input-box input { 
+            width: 100%; 
+            border: none; 
+            outline: none; 
+            font-weight: 600; 
+            font-size: 0.95rem; 
+            color: #0f172a;
+            background: transparent;
+        }
 
-    /* Override login-container for dashboard pages */
-    .dashboard-container {
-        max-width: 1100px;
-        margin: 32px auto 40px;
-        background: transparent;
-        box-shadow: none;
-        padding: 0 24px;
-    }
+        .security-banner {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    /* Top bar */
-    .profile-header-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 4px 8px;
-        margin-bottom: 8px;
-    }
-
-    .profile-header-left {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .profile-logo-text {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #111827;
-    }
-
-    .profile-header-subtitle {
-        font-size: 0.95rem;
-        color: #6b7280;
-    }
-
-    .profile-header-id {
-        font-size: 0.85rem;
-        color: #6b7280;
-    }
-
-    /* Link button to dashboard (you already have .profile-btn from dashboard.css) */
-    .profile-btn {
-        font-size: 0.9rem;
-        padding: 8px 16px;
-    }
-
-    .profile-main {
-        margin-top: 12px;
-    }
-
-    /* Message containers (success / error) */
-    .message-container {
-        padding: 12px 16px;
-        margin-bottom: 16px;
-        border-radius: 6px;
-        font-weight: 500;
-        font-size: 0.9rem;
-    }
-    .success-message {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-    .error-message {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-
-    /* Cards like ISMAC profile sections */
-    .profile-card {
-        background-color: #ffffff;
-        border-radius: 16px;
-        padding: 20px 24px 24px;
-        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
-        margin-bottom: 24px;
-    }
-
-    .profile-card-title {
-        font-size: 1.05rem;
-        font-weight: 700;
-        margin-bottom: 18px;
-    }
-
-    /* Inputs */
-    .profile-form input[type="text"],
-    .profile-form input[type="password"] {
-        width: 100%;
-        padding: 10px 10px;
-        margin-bottom: 16px;
-        border: 1px solid #d1d5db;
-        border-radius: 6px;
-        box-sizing: border-box;
-        font-size: 0.95rem;
-    }
-
-    .profile-form input[type="text"]:focus,
-    .profile-form input[type="password"]:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 1px rgba(59,130,246,0.25);
-    }
-
-    .profile-form label {
-        display: block;
-        margin-bottom: 4px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: #111827;
-    }
-
-    .security-check {
-        background-color: #fff3cd;
-        color: #856404;
-        padding: 10px 12px;
-        border-radius: 6px;
-        margin: 4px 0 16px;
-        font-size: 0.9rem;
-    }
-
-    /* Save button area */
-    .profile-actions {
-        text-align: right;
-        margin-bottom: 8px;
-    }
-
-    .profile-save-btn {
-        width: auto;
-        min-width: 180px;
-        padding-inline: 24px;
-        border-radius: 999px;
-    }
-
-    /* Keep existing login-btn styling from login.css for colors */
-</style>
-
+        .btn-save-profile {
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: 0.3s;
+            width: 100%;
+        }
+        .btn-save-profile:hover { 
+            background: #3f72af; 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 15px rgba(63, 114, 175, 0.2); 
+        }
+    </style>
 </head>
-<body class="profile-page">
-    <div class="login-container dashboard-container">
+<body class="dashboard-page">
 
-        <!-- Top bar (left title + Dashboard button on the right) -->
-        <div class="profile-header-bar">
-            <div class="profile-header-left">
-                <div class="profile-logo-text">ADIA Library</div>
-                <div class="profile-header-subtitle">Edit Profile</div>
-                <div class="profile-header-id">Staff ID: <strong>{{ staff_id }}</strong></div>
-            </div>
-            <a href="{% url 'dashboard' %}" style="color: red, background-color: white;">
-                🏠 Dashboard
-            </a>
+<div class="dashboard-layout">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-logo">
+            <img src="{{ MEDIA_URL }}{{ logo_image }}" alt="Logo" class="logo-img">
         </div>
+        <nav class="sidebar-nav">
+            <p class="sidebar-section-label">LIBRARY</p>
+            <a href="{% url 'dashboard' %}" class="sidebar-link">Dashboard</a>
+            <a href="{% url 'books_list' %}" class="sidebar-link">📚 Manage Books</a>
+            <a href="{% url 'users_list' %}" class="sidebar-link">📖 Users Staff</a>
+            <a href="{% url 'members_list' %}" class="sidebar-link">👥 Members</a>
+            <p class="sidebar-section-label">ACCOUNT</p>
+            <a href="{% url 'staff_profile' %}" class="sidebar-link active">👤 My Profile</a>
+        </nav>
+    </aside>
 
-        <!-- Messages -->
-        {% if error_message %}
-            <div class="message-container error-message">
-                **RPC Error:** {{ error_message }}
-            </div>
-        {% elif success_message %}
-            <div class="message-container success-message">
-                {{ success_message }}
-            </div>
-        {% endif %}
-
-        <!-- Main content -->
-        <main class="profile-main">
-
-            <form method="post" action="{% url 'staff_profile' %}" class="profile-form">
-                {% csrf_token %}
-
-                <!-- CARD 1: Connection details -->
-                <section class="profile-card">
-                    <h2 class="profile-card-title">CONNECTION DETAILS</h2>
-
-                    <label for="id_new_username">Username</label>
-                    <input type="text" id="id_new_username" name="new_username"
-                           value="{{ username }}" required>
-
-                    <label for="id_new_email">Email Address</label>
-                    <input type="text" id="id_new_email" name="new_email"
-                           value="{{ email }}" placeholder="Update your email address">
-                </section>
-
-                <!-- CARD 2: Security settings -->
-                <section class="profile-card">
-                    <h2 class="profile-card-title">SECURITY SETTINGS</h2>
-
-                    <label for="id_new_password">New Password (Optional)</label>
-                    <input type="password" id="id_new_password" name="new_password"
-                           placeholder="Leave empty to keep current password">
-
-                    <div class="security-check">
-                        <strong>Security Check:</strong> You must enter your current password to save any changes.
-                    </div>
-
-                    <label for="id_current_password">Current Password *</label>
-                    <input type="password" id="id_current_password" name="current_password" required>
-                </section>
-
-                <!-- Save button -->
-                <div class="profile-actions">
-                    <button type="submit" class="login-btn profile-save-btn">
-                        Save Changes
-                    </button>
+    <main class="dashboard-main">
+        <div class="dashboard-main-inner">
+            <header class="topbar">
+                <div class="topbar-search">
+                    <span class="text-muted fw-light">Paramètres / <strong>Mon Profil Staff</strong></span>
                 </div>
-            </form>
+                <div class="topbar-user">
+                    <span class="topbar-username">{{ username|default:"Librarian" }}</span>
+                    <div class="topbar-avatar-btn">👤</div>
+                </div>
+            </header>
 
-        </main>
-    </div>
+            <section class="hero-banner" style="background: linear-gradient(135deg, #112d4e 0%, #3f72af 100%);">
+                <div class="hero-text-block">
+                    <p class="hero-eyebrow">Personal Settings</p>
+                    <h1 class="hero-title">👤 Gestion du Profil</h1>
+                    <p class="hero-subtitle">Identifiant Staff : <strong>#{{ staff_id }}</strong> — Gérez vos accès et informations de sécurité.</p>
+                </div>
+            </section>
+
+            <section class="dashboard-section p-4">
+                <div class="row justify-content-center">
+                    <div class="col-xl-9">
+                        
+                        {% if error_message %}
+                            <div class="alert alert-danger border-0 rounded-3 mb-4 shadow-sm">
+                                <i class="ri-error-warning-line me-2"></i> {{ error_message }}
+                            </div>
+                        {% elif success_message %}
+                            <div class="alert alert-success border-0 rounded-3 mb-4 shadow-sm">
+                                <i class="ri-checkbox-circle-line me-2"></i> {{ success_message }}
+                            </div>
+                        {% endif %}
+
+                        <form method="post" action="{% url 'staff_profile' %}">
+                            {% csrf_token %}
+
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                                        <h5 class="mb-4 text-dark fw-bold border-bottom pb-2">Identifiants</h5>
+                                        
+                                        <div class="input-box">
+                                            <label>Nom d'utilisateur</label>
+                                            <input type="text" name="new_username" value="{{ username }}" required>
+                                        </div>
+
+                                        <div class="input-box">
+                                            <label>Adresse Email</label>
+                                            <input type="email" name="new_email" value="{{ email }}" placeholder="Email de contact">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                                        <h5 class="mb-4 text-dark fw-bold border-bottom pb-2">Sécurité</h5>
+
+                                        <div class="input-box">
+                                            <label>Nouveau mot de passe (Optionnel)</label>
+                                            <input type="password" name="new_password" placeholder="Laisser vide pour ne pas changer">
+                                        </div>
+
+                                        <div class="security-banner">
+                                            <i class="ri-shield-keyhole-line fs-4"></i>
+                                            <span>Vous devez confirmer votre <strong>mot de passe actuel</strong> pour enregistrer.</span>
+                                        </div>
+
+                                        <div class="input-box" style="border-color: #ffcc00; background: #fffdf5;">
+                                            <label style="color: #856404;">Mot de passe actuel *</label>
+                                            <input type="password" name="current_password" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 text-end mt-2">
+                                    <button type="submit" class="btn-save-profile shadow">
+                                        <i class="ri-save-3-line me-2"></i> ENREGISTRER LES MODIFICATIONS
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
 </body>
 </html>
