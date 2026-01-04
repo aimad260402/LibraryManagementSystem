@@ -82,13 +82,15 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
             book.isbn = request.isbn
             book.total_copies = request.total_copies
             book.available_copies = request.available_copies
-            book.save()
+            
             if request.image_url:
-                book.image_url = request.image_url
+                book.image = request.image_url
+            
+            book.save()
+      
             return library_pb2.StatusResponse(success=True, message="Livre mis à jour.")
-        except Book.DoesNotExist:
-            return library_pb2.StatusResponse(success=False, message="Livre introuvable.")
         except Exception as e:
+  
             return library_pb2.StatusResponse(success=False, message=str(e))
 
     def DeleteBook(self, request, context):
@@ -113,7 +115,7 @@ class LibraryServicer(library_pb2_grpc.LibraryServiceServicer):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             return library_pb2.Book()
 
-    # --- C. Search ---
+    # --- C. Search ---SearchBooks
     def SearchBooks(self, request, context):
         query = request.query
         books = Book.objects.filter(Q(title__icontains=query) | Q(author__icontains=query)).order_by('title')

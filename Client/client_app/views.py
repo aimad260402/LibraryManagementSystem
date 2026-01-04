@@ -60,38 +60,30 @@ def staff_logout(request: HttpRequest):
 # in client_app/views.py
 
 def dashboard(request: HttpRequest):
-    # 🔹 Images used on both login & dashboard
-    
-
     staff_id = request.session.get('staff_id')
     if not staff_id:
-        request.session['login_message'] = "Please log in to view the dashboard."
         return redirect('staff_login')
 
     query = request.GET.get('q', '')
     client = LibraryClient()
     
-    # On convertit le stream gRPC en liste pour faire les calculs
-    book_results = list(client.search_books(query))
-
-    # --- NOUVELLE LOGIQUE DE STATISTIQUES ---
-    total_available = 0
-    total_borrowed = 0
+    # 1. On récupère TOUS les livres pour les stats réelles (indépendant de la recherche)
+    all_books = list(client.search_books("")) 
     
-    for book in book_results:
-        total_available += book.available_copies
-        # Le nombre d'empruntés est la différence entre le stock total et le stock disponible
-        total_borrowed += (book.total_copies - book.available_copies)
-    # ----------------------------------------
+    # 2. On récupère les résultats de la recherche pour l'affichage
+    book_results = list(client.search_books(query)) if query else all_books
+
+    total_available = sum(b.available_copies for b in all_books)
+    # Calcul basé sur la réalité physique des livres existants
+    total_borrowed = sum(b.total_copies - b.available_copies for b in all_books)
 
     context = {
         'username': request.session.get('username'),
         'query': query,
         'book_results': book_results,
-        'total_available': total_available, # 👈 ajouté
-        'total_borrowed': total_borrowed,   # 👈 ajouté
+        'total_available': total_available,
+        'total_borrowed': total_borrowed,
         'title': "Librarian Dashboard & Search",
-      
     }
     return render(request, 'client_app/dashboard.html', context)
 # def edit_book_view(request, book_id):
