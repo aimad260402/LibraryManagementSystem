@@ -110,9 +110,8 @@
     }
 
     .btn-cancel-exit:hover {
-        color: #ffffff; /* Plus sombre au survol */
-        background-color: #305c26; /* Fond gris très léger */
-       
+        color: #ffffff;
+        background-color: #305c26;
         transform: translateY(-1px);
     }
     /* --- ACTION BUTTONS --- */
@@ -134,10 +133,10 @@
         color: #ffffff !important;
     }
 
-    .btn-issue { background: #56a1fc; } /* Noir pro pour l'emprunt */
-    .btn-issue:hover { background:  #56a2ff; transform: translateY(-2px); }
+    .btn-issue { background: #56a1fc; }
+    .btn-issue:hover { background: #56a2ff; transform: translateY(-2px); }
 
-    .btn-return { background: #56a1fc; } /* Orange pro pour le retour */
+    .btn-return { background: #56a1fc; }
     .btn-return:hover { background: #56a2ff; transform: translateY(-2px); }
 
     .btn-cancel {
@@ -184,12 +183,14 @@
                 <div class="input-group-custom">
                     <div class="input-box">
                         <label>Identify Member *</label>
-                        <select name="member_id" required>
-                            <option value="" disabled selected>Search by name or ID...</option>
-                            {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.full_name }} (ID: {{ member.id }})</option>
-                            {% endfor %}
-                        </select>
+<select name="member_id" required>
+    {% for member in members %}
+        <option value="{{ member.id }}" 
+            {% if preselected_member_id == member.id|stringformat:"s" %}selected{% endif %}>
+            {{ member.full_name }}
+        </option>
+    {% endfor %}
+</select>
                     </div>
                 </div>
 
@@ -197,10 +198,10 @@
                     <div class="input-box">
                         <label>Select Work *</label>
                         <select name="book_id" required>
-                            <option value="" disabled>Search by Title or ISBN...</option>
+                            <option value="" disabled {% if not preselected_book_id %}selected{% endif %}>Search by Title or ISBN...</option>
                             {% for book in books %}
                                 <option value="{{ book.id }}" 
-                                    {% if preselected_book_id == book.id|stringformat:"i" %}selected{% endif %}>
+                                    {% if preselected_book_id == book.id|stringformat:"s" or preselected_book_id == book.id|stringformat:"i" %}selected{% endif %}>
                                     {{ book.title }} 
                                     {% if book.available_copies > 0 %}
                                         (Available: {{ book.available_copies }})

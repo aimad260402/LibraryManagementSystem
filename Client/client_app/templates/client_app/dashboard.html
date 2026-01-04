@@ -82,7 +82,8 @@
                         </td>
                         <td class="d-none d-sm-table-cell fw-bold">{{ book.available_copies }} / {{ book.total_copies }}</td>
                         <td class="text-end pe-4">
-                            <a href="{% url 'issue_book' %}?book_id={{ book.id }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                            <a href="{% url 'issue_book' %}?book_id={{ book.id }}&member_id={{ book.current_borrower_id }}&mode=return" 
+                                 class="btn btn-sm btn-outline-warning rounded-pill px-3">
                                 <i class="ri-arrow-right-line"></i>
                             </a>
                         </td>
