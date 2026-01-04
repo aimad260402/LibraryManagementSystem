@@ -147,6 +147,39 @@
         transition: 0.2s;
     }
     .btn-cancel:hover { color: #111827; }
+    @keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-message {
+    animation: fadeInSlide 0.5s ease-out forwards;
+}
+
+.alert-custom {
+    border-radius: 12px;
+    padding: 15px 20px;
+}
+
+/* Style Vert pour le SUCCÈS */
+.alert-success {
+    background-color: #ecfdf5 !important; /* Fond vert menthe très doux */
+    color: #065f46 !important;            /* Texte vert foncé pro */
+    border-left: 5px solid #10b981 !important; /* Ligne d'accentuation verte */
+}
+
+/* Style Rouge pour l'ERREUR */
+.alert-error, .alert-danger {
+    background-color: #fef2f2 !important; /* Fond rouge pâle */
+    color: #991b1b !important;            /* Texte rouge foncé */
+    border-left: 5px solid #ef4444 !important; /* Ligne d'accentuation rouge */
+}
 </style>
 
 <section class="hero-banner-issue shadow-sm">
@@ -169,15 +202,22 @@
     <div class="col-xl-8 col-lg-10">
         <div class="transaction-card">
             
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} rounded-3 border-0 shadow-sm mb-4 text-start small">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-custom alert-{{ message.tags }} shadow-sm border-0 mb-4 animate-message">
+            <div class="d-flex align-items-center">
+                {% if message.tags == 'success' %}
+                    <i class="ri-checkbox-circle-fill fs-4 me-3"></i>
+                {% else %}
+                    <i class="ri-error-warning-fill fs-4 me-3"></i>
+                {% endif %}
+                <span class="fw-bold small">{{ message }}</span>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
 
-            <form method="POST">
+<form method="POST">
                 {% csrf_token %}
 
                 <div class="input-group-custom">

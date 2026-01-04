@@ -317,7 +317,7 @@ def add_book(request: HttpRequest):
 def issue_book_view(request):
     client = LibraryClient()
     book_id = request.GET.get('book_id')
-    member_id = request.GET.get('member_id') # 👈 On récupère aussi le membre
+    member_id = request.GET.get('member_id') 
     
     members = list(client.get_all_members())
     books = list(client.search_books(query=""))

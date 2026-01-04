@@ -5,6 +5,73 @@
 {% block breadcrumb_active %}Dashboard Overview{% endblock %}
 
 {% block content %}
+<style>
+    /* Animation d'apparition */
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-message {
+    animation: fadeInSlide 0.5s ease-out forwards;
+}
+
+.alert-custom {
+    border-radius: 12px;
+    padding: 15px 20px;
+}
+
+/* Style Vert (Succès) */
+.alert-success {
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border-left: 5px solid #10b981 !important;
+}
+
+/* Style Rouge (Erreur) */
+.alert-error, .alert-danger {
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border-left: 5px solid #ef4444 !important;
+}
+/* Style Pro pour le bouton d'Emprunt (Vert - Disponible) */
+.btn-action-issue {
+    background-color: #10b981;
+    color: white !important;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-action-issue:hover {
+    background-color: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Style Pro pour le bouton de Retour (Rouge - Rupture) */
+.btn-action-return {
+    background-color: #ef4444;
+    color: white !important;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-action-return:hover {
+    background-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Uniformisation des boutons d'action */
+.action-icon-btn {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+</style>
     <section class="hero-banner p-4 p-md-5 rounded-4 m-4 text-white shadow-sm" style="background: linear-gradient(135deg, #3f72af 0%, #112d4e 100%);">
         <div class="hero-text-block">
             <p class="hero-eyebrow text-uppercase fw-bold opacity-75">Inventory Management</p>
@@ -33,7 +100,22 @@
             </div>
         </article>
     </section>
-
+    {% if messages %}
+    <div class="px-4 mt-3">
+        {% for message in messages %}
+            <div class="alert alert-custom alert-{{ message.tags }} shadow-sm border-0 mb-3 animate-message">
+                <div class="d-flex align-items-center">
+                    {% if message.tags == 'success' %}
+                        <i class="ri-checkbox-circle-fill fs-4 me-3"></i>
+                    {% else %}
+                        <i class="ri-error-warning-fill fs-4 me-3"></i>
+                    {% endif %}
+                    <span class="fw-bold small">{{ message }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
     <section class="dashboard-section px-4 pb-5">
         <div class="section-header d-flex justify-content-between align-items-center mb-4">
             <h2 class="section-title fw-bold"><i class="ri-search-eye-line me-2"></i>Quick Inventory Search</h2>
@@ -81,12 +163,21 @@
                             {% endif %}
                         </td>
                         <td class="d-none d-sm-table-cell fw-bold">{{ book.available_copies }} / {{ book.total_copies }}</td>
-                        <td class="text-end pe-4">
-                            <a href="{% url 'issue_book' %}?book_id={{ book.id }}&member_id={{ book.current_borrower_id }}&mode=return" 
-                                 class="btn btn-sm btn-outline-warning rounded-pill px-3">
-                                <i class="ri-arrow-right-line"></i>
-                            </a>
-                        </td>
+<td class="text-end pe-4">
+    {% if book.available_copies > 0 %}
+        <a href="{% url 'issue_book' %}?book_id={{ book.id }}" 
+           class="btn btn-action-issue action-icon-btn rounded-circle"
+           title="Effectuer un emprunt">
+            <i class="ri-arrow-right-line"></i>
+        </a>
+    {% else %}
+        <a href="{% url 'issue_book' %}?book_id={{ book.id }}&member_id={{ book.current_borrower_id }}&mode=return" 
+           class="btn btn-action-return action-icon-btn rounded-circle"
+           title="Traiter le retour">
+            <i class="ri-arrow-go-back-line"></i>
+        </a>
+    {% endif %}
+</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -97,3 +188,15 @@
         {% endif %}
     </section>
 {% endblock %}
+<script>
+
+    setTimeout(function() {
+        let alerts = document.querySelectorAll('.animate-message');
+        alerts.forEach(alert => {
+            alert.style.transition = "opacity 0.6s ease";
+            alert.style.opacity = "0";
+            setTimeout(() => alert.remove(), 600);
+        });
+    }, 4000); // 4000ms = 4 secondes
+
+</script>
